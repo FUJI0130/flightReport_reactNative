@@ -45,11 +45,10 @@ push:
 	fi; \
 	git add .; \
 	git commit -m "$@"; \
-	git push origin master;
+	git push origin main;
 
 # デバイスの確認
 devices:
 	adb devices
 
 .PHONY: build-android start-metro sync push devices
-
