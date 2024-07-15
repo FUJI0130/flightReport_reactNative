@@ -7,7 +7,11 @@ function HomeScreen({ navigation }) {
       <Text>Home Screen</Text>
       <Button
         title="Go to Details"
-        onPress={() => navigation.navigate('Detail')}
+        onPress={() => navigation.navigate('Detail')} // 修正: 'Details' -> 'Detail'
+      />
+      <Button
+        title="Add New Record"
+        onPress={() => navigation.navigate('AddRecord')}
       />
     </View>
   );
