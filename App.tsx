@@ -29,4 +29,3 @@ function App() {
 AppRegistry.registerComponent(appName, () => App); // 追加
 
 export default App;
-
