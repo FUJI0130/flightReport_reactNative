@@ -51,5 +51,7 @@ push:
 devices:
 	adb devices
 
-.PHONY: build-android start-metro sync push devices
+.DEFAULT:
+	@echo "Error: Unknown target '$@'. Use 'make <target>' where <target> is one of 'build-android', 'start-metro', 'sync', 'push', 'devices'."
 
+.PHONY: build-android start-metro sync push devices
