@@ -39,12 +39,12 @@ sync:
 
 # GitHubにプッシュ
 push:
-	@if [ -z "$@" ]; then \
-		echo "Error: Commit message is required. Use 'make push \"your commit message\"'"; \
+	@if [ -z "$(COMMIT_MSG)" ]; then \
+		echo "Error: Commit message is required. Use 'make push COMMIT_MSG=\"your commit message\"'"; \
 		exit 1; \
 	fi; \
 	git add .; \
-	git commit -m "$@"; \
+	git commit -m "$(COMMIT_MSG)"; \
 	git push;
 
 # デバイスの確認
