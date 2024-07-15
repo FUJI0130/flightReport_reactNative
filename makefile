@@ -45,7 +45,7 @@ push:
 	fi; \
 	git add .; \
 	git commit -m "$@"; \
-	git push origin main;
+	git push;
 
 # デバイスの確認
 devices:
