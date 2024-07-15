@@ -51,7 +51,10 @@ push:
 devices:
 	adb devices
 
-.DEFAULT:
-	@echo "Error: Unknown target '$@'. Use 'make <target>' where <target> is one of 'build-android', 'start-metro', 'sync', 'push', 'devices'."
+.DEFAULT_GOAL := default
+
+default:
+	@echo "Error: Unknown target '$(MAKECMDGOALS)'. Use 'make <target>' where <target> is one of 'build-android', 'start-metro', 'sync', 'push', 'devices'."
 
 .PHONY: build-android start-metro sync push devices
+
