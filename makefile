@@ -39,12 +39,12 @@ sync:
 
 # GitHubにプッシュ
 push:
-	@if [ -z "$(COMMIT_MSG)" ]; then \
-		echo "Error: Commit message is required. Use 'make push COMMIT_MSG=\"your commit message\"'"; \
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: Commit message is required. Use 'make push \"your commit message\"'"; \
 		exit 1; \
 	fi; \
 	git add .; \
-	git commit -m "$(COMMIT_MSG)"; \
+	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"; \
 	git push;
 
 # デバイスの確認
@@ -52,3 +52,4 @@ devices:
 	adb devices
 
 .PHONY: build-android start-metro sync push devices
+
