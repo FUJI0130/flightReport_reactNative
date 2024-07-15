@@ -1,8 +1,10 @@
-// App.tsx
+import 'react-native-gesture-handler'; // 追加
+
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View } from 'react-native';
+import { AppRegistry, View, Text } from 'react-native'; // 修正
+import { name as appName } from './app.json'; // 修正
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +16,7 @@ function HomeScreen() {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -23,3 +25,8 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+AppRegistry.registerComponent(appName, () => App); // 追加
+
+export default App;
+
