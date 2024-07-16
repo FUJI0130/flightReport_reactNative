@@ -1,3 +1,4 @@
+// App.tsx
 import 'react-native-gesture-handler';
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -17,7 +18,7 @@ function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Detail" component={DetailScreen} />
-      <Stack.Screen name="AddRecord" component={AddRecordScreen} /> 
+        <Stack.Screen name="AddRecord" component={AddRecordScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -26,3 +27,4 @@ function App() {
 AppRegistry.registerComponent(appName, () => App);
 
 export default App;
+
