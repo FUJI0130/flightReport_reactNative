@@ -39,16 +39,20 @@ sync:
 
 # GitHubにプッシュ
 push:
-	@if [ -z "$@" ]; then \
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: Commit message is required. Use 'make push \"your commit message\"'"; \
 		exit 1; \
 	fi; \
 	git add .; \
-	git commit -m "$@"; \
-	git push origin main;
+	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"; \
+	git push;
 
 # デバイスの確認
 devices:
 	adb devices
+
+# ダミーターゲット
+%:
+	@:
 
 .PHONY: build-android start-metro sync push devices
