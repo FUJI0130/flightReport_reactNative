@@ -1,30 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const storeData = async (key: string, value: string) => {
+const STORAGE_KEY = 'flightLogs';
+
+type FlightLog = {
+  key: string;
+  details: string;
+};
+
+export const storeData = async (details: string) => {
   try {
-    await AsyncStorage.setItem(key, value);
+    const existingLogs = await loadFlightLogs();
+    const newLog = {key: Date.now().toString(), details};
+    const newLogs = [...existingLogs, newLog];
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newLogs));
   } catch (e) {
     console.error('Error storing data:', e);
   }
 };
 
-export const getData = async (key: string) => {
+export const loadFlightLogs = async (): Promise<FlightLog[]> => {
   try {
-    const value = await AsyncStorage.getItem(key);
-    if (value !== null) {
-      return value;
-    }
-  } catch (e) {
-    console.error('Error fetching data:', e);
-  }
-  return null;
-};
-
-export const loadFlightLogs = async () => {
-  try {
-    const keys = await AsyncStorage.getAllKeys();
-    const result = await AsyncStorage.multiGet(keys);
-    return result.map(([key, value]) => ({key, details: value}));
+    const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
+    return jsonValue != null ? JSON.parse(jsonValue) : [];
   } catch (e) {
     console.error('Error loading flight logs:', e);
     return [];
@@ -33,6 +30,5 @@ export const loadFlightLogs = async () => {
 
 export default {
   storeData,
-  getData,
   loadFlightLogs,
 };

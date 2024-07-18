@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
 import Storage from '../storage/Storage';
 
 type Record = {
@@ -17,14 +17,17 @@ type RootStackParamList = {
 function HomeScreen() {
   const [records, setRecords] = useState<Record[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const isFocused = useIsFocused();  // 画面がフォーカスされているかを監視
 
   useEffect(() => {
     const loadLogs = async () => {
       const data: Record[] = await Storage.loadFlightLogs();
       setRecords(data);
     };
-    loadLogs();
-  }, []);
+    if (isFocused) {  // 画面がフォーカスされた時にデータをロード
+      loadLogs();
+    }
+  }, [isFocused]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
