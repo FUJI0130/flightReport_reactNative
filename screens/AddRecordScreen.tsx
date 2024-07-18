@@ -8,7 +8,7 @@ const AddRecordScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handleSave = async () => {
-    await Storage.storeData(details);
+    await Storage.saveFlightLog({ key: new Date().toISOString(), details });
     console.log('Saved Record:', details);
     navigation.goBack();
   };

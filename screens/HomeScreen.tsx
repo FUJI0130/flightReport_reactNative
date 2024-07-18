@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
-import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Storage from '../storage/Storage';
 
 type Record = {
@@ -12,22 +12,20 @@ type RootStackParamList = {
   Home: undefined;
   Detail: { record: Record };
   AddRecord: undefined;
+  Export: undefined; // 追加
 };
 
 function HomeScreen() {
   const [records, setRecords] = useState<Record[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const isFocused = useIsFocused();  // 画面がフォーカスされているかを監視
 
   useEffect(() => {
     const loadLogs = async () => {
       const data: Record[] = await Storage.loadFlightLogs();
       setRecords(data);
     };
-    if (isFocused) {  // 画面がフォーカスされた時にデータをロード
-      loadLogs();
-    }
-  }, [isFocused]);
+    loadLogs();
+  }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -40,6 +38,10 @@ function HomeScreen() {
       <Button
         title="Add New Record"
         onPress={() => navigation.navigate('AddRecord')}
+      />
+      <Button
+        title="Export Flight Logs"
+        onPress={() => navigation.navigate('Export')} // 追加
       />
     </View>
   );
