@@ -10,7 +10,7 @@ type Record = {
 
 type RootStackParamList = {
   Home: undefined;
-  Detail: undefined;
+  Detail: { record: Record };
   AddRecord: undefined;
 };
 
@@ -30,12 +30,10 @@ function HomeScreen() {
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Flight Records</Text>
       {records.map((record, index) => (
-        <Text key={index}>{record.details}</Text>
+        <Text key={index} onPress={() => navigation.navigate('Detail', { record })}>
+          {record.details}
+        </Text>
       ))}
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate('Detail')}
-      />
       <Button
         title="Add New Record"
         onPress={() => navigation.navigate('AddRecord')}
@@ -45,4 +43,3 @@ function HomeScreen() {
 }
 
 export default HomeScreen;
-

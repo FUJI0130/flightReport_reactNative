@@ -1,41 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button } from 'react-native';
 import Storage from '../storage/Storage';
+import { useNavigation } from '@react-navigation/native';
 
-type Record = {
-  key: string;
-  details: string | null;
-};
-
-function HomeScreen() {
-  const [records, setRecords] = useState<Record[]>([]);
+const AddRecordScreen: React.FC = () => {
+  const [details, setDetails] = useState('');
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const loadLogs = async () => {
-      const data: Record[] = await Storage.loadFlightLogs();
-      setRecords(data);
-    };
-    loadLogs();
-  }, []);
+  const handleSave = async () => {
+    await Storage.storeData('record', details);
+    console.log('Saved Record:', details);
+    navigation.goBack();
+  };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Flight Records</Text>
-      {records.map((record, index) => (
-        <Text key={index}>{record.details}</Text>
-      ))}
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate('Detail')}
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+      <Text>Add New Flight Record</Text>
+      <TextInput
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, width: '100%', marginBottom: 20, padding: 10 }}
+        placeholder="Flight Details"
+        value={details}
+        onChangeText={setDetails}
       />
-      <Button
-        title="Add New Record"
-        onPress={() => navigation.navigate('AddRecord')}
-      />
+      <Button title="Save Record" onPress={handleSave} />
     </View>
   );
-}
+};
 
-export default HomeScreen;
+export default AddRecordScreen;
