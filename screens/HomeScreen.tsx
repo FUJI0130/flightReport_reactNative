@@ -1,14 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
+import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
+import Storage from '../storage/Storage';
 
-function HomeScreen({ navigation }) {
+type Record = {
+  key: string;
+  details: string | null;
+};
+
+type RootStackParamList = {
+  Home: undefined;
+  Detail: { record: Record };
+  AddRecord: undefined;
+};
+
+function HomeScreen() {
+  const [records, setRecords] = useState<Record[]>([]);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const isFocused = useIsFocused();  // 画面がフォーカスされているかを監視
+
+  useEffect(() => {
+    const loadLogs = async () => {
+      const data: Record[] = await Storage.loadFlightLogs();
+      setRecords(data);
+    };
+    if (isFocused) {  // 画面がフォーカスされた時にデータをロード
+      loadLogs();
+    }
+  }, [isFocused]);
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Home Screen</Text>
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate('Detail')} // 修正: 'Details' -> 'Detail'
-      />
+      <Text>Flight Records</Text>
+      {records.map((record, index) => (
+        <Text key={index} onPress={() => navigation.navigate('Detail', { record })}>
+          {record.details}
+        </Text>
+      ))}
       <Button
         title="Add New Record"
         onPress={() => navigation.navigate('AddRecord')}
