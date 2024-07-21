@@ -3,6 +3,7 @@ import { View, Text, Button } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FlightLog } from '../../domain/models/FlightLog';
 import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
+import { GetFlightLogsUseCase } from '../../application/usecases/GetFlightLogsUseCase';
 
 type RootStackParamList = {
   Home: undefined;
@@ -15,10 +16,11 @@ function HomeScreen() {
   const [records, setRecords] = useState<FlightLog[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const repository = new FileSystemFlightLogRepository();
+  const getFlightLogsUseCase = new GetFlightLogsUseCase(repository);
 
   useEffect(() => {
     const loadLogs = async () => {
-      const data = await repository.loadFlightLogs();
+      const data = await getFlightLogsUseCase.execute();
       setRecords(data);
     };
     loadLogs();
