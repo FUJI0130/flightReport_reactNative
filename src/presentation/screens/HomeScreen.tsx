@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Button } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FlightLog } from '../../domain/models/FlightLog';
 import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
 import { GetFlightLogsUseCase } from '../../application/usecases/GetFlightLogsUseCase';
+import FlightLogList from '../../components/FlightLogList';
+import Header from '../../components/Header';
 
 type RootStackParamList = {
   Home: undefined;
@@ -26,14 +28,14 @@ function HomeScreen() {
     loadLogs();
   }, []);
 
+  const handleLogPress = (record: FlightLog) => {
+    navigation.navigate('Detail', { record });
+  };
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Flight Records</Text>
-      {records.map((record, index) => (
-        <Text key={index} onPress={() => navigation.navigate('Detail', { record })}>
-          {record.details}
-        </Text>
-      ))}
+      <Header title="Flight Records" />
+      <FlightLogList logs={records} onLogPress={handleLogPress} />
       <Button
         title="Add New Record"
         onPress={() => navigation.navigate('AddRecord')}
