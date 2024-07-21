@@ -1,17 +1,10 @@
 import 'react-native-gesture-handler';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PermissionsAndroid, Platform } from 'react-native';
-import HomeScreen from './screens/HomeScreen';
-import DetailScreen from './screens/DetailScreen';
-import AddRecordScreen from './screens/AddRecordScreen';
-import ExportScreen from './screens/ExportScreen'; // 追加
+import AppNavigator from './navigation/AppNavigator';
 
-const Stack = createNativeStackNavigator();
-
-function App() {
+const App: React.FC = () => {
   useEffect(() => {
     const requestStoragePermission = async () => {
       if (Platform.OS === 'android') {
@@ -40,16 +33,8 @@ function App() {
     requestStoragePermission();
   }, []);
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Detail" component={DetailScreen} />
-        <Stack.Screen name="AddRecord" component={AddRecordScreen} />
-        <Stack.Screen name="Export" component={ExportScreen} /> 
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+  return <AppNavigator />;
+};
 
 export default App;
+
