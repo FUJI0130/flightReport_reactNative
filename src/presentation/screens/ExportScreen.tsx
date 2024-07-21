@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
-import Storage from '../../infrastructure/repositories/Storage';
 import { useNavigation } from '@react-navigation/native';
+import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
 
 const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
+  const repository = new FileSystemFlightLogRepository();
 
   const handleExport = async () => {
     try {
-      await Storage.exportFlightLogsToCSV();
+      await repository.exportFlightLogsToCSV();
       console.log('Exported flight logs to CSV');
       navigation.goBack();
     } catch (e) {

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
-import Storage from '../../infrastructure/repositories/Storage';
 import { useNavigation } from '@react-navigation/native';
+import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
 
 const AddRecordScreen: React.FC = () => {
   const [details, setDetails] = useState('');
   const navigation = useNavigation();
+  const repository = new FileSystemFlightLogRepository();
 
   const handleSave = async () => {
-    await Storage.saveFlightLog({ key: new Date().toISOString(), details });
+    await repository.saveFlightLog({ key: new Date().toISOString(), details });
     console.log('Saved Record:', details);
     navigation.goBack();
   };
