@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
+import Header from '../../components/Header';
 
 const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -18,11 +19,24 @@ const ExportScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Export Flight Logs</Text>
-      <Button title="Export to CSV" onPress={handleExport} />
+    <View style={styles.container}>
+      <Header title="Export Flight Logs" />
+      <View style={styles.content}>
+        <Button title="Export to CSV" onPress={handleExport} />
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default ExportScreen;
