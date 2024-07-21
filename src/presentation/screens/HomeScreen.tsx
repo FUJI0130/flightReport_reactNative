@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import Storage from '../storage/Storage';
-
-type Record = {
-  key: string;
-  details: string | null;
-};
+import Storage from '../../infrastructure/repositories/Storage';
+import { FlightLog } from '../../domain/models/FlightLog';
 
 type RootStackParamList = {
   Home: undefined;
-  Detail: { record: Record };
+  Detail: { record: FlightLog };
   AddRecord: undefined;
-  Export: undefined; // 追加
+  Export: undefined;
 };
 
 function HomeScreen() {
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<FlightLog[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     const loadLogs = async () => {
-      const data: Record[] = await Storage.loadFlightLogs();
+      const data: FlightLog[] = await Storage.loadFlightLogs();
       setRecords(data);
     };
     loadLogs();
@@ -41,10 +37,11 @@ function HomeScreen() {
       />
       <Button
         title="Export Flight Logs"
-        onPress={() => navigation.navigate('Export')} // 追加
+        onPress={() => navigation.navigate('Export')}
       />
     </View>
   );
 }
 
 export default HomeScreen;
+

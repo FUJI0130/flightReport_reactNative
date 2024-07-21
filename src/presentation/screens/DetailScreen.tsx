@@ -1,15 +1,11 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-
-type Record = {
-  key: string;
-  details: string | null;
-};
+import { FlightLog } from '../../domain/models/FlightLog';
 
 type RootStackParamList = {
   Home: undefined;
-  Detail: { record: Record };
+  Detail: { record: FlightLog };
   AddRecord: undefined;
 };
 

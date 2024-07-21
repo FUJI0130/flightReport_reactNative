@@ -4,10 +4,10 @@ import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PermissionsAndroid, Platform } from 'react-native';
-import HomeScreen from './screens/HomeScreen';
-import DetailScreen from './screens/DetailScreen';
-import AddRecordScreen from './screens/AddRecordScreen';
-import ExportScreen from './screens/ExportScreen'; // 追加
+import HomeScreen from './presentation/screens/HomeScreen';
+import DetailScreen from './presentation/screens/DetailScreen';
+import AddRecordScreen from './presentation/screens/AddRecordScreen';
+import ExportScreen from './presentation/screens/ExportScreen'; // 追加
 
 const Stack = createNativeStackNavigator();
 

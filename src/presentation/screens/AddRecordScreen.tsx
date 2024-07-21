@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
-import Storage from '../storage/Storage';
+import Storage from '../../infrastructure/repositories/Storage';
 import { useNavigation } from '@react-navigation/native';
 
 const AddRecordScreen: React.FC = () => {

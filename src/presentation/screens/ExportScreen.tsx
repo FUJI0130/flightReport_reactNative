@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
-import Storage from '../storage/Storage';
+import Storage from '../../infrastructure/repositories/Storage';
 import { useNavigation } from '@react-navigation/native';
 
 const ExportScreen: React.FC = () => {
