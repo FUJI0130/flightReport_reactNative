@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import Storage from '../../infrastructure/repositories/Storage';
 import { FlightLog } from '../../domain/models/FlightLog';
+import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
 
 type RootStackParamList = {
   Home: undefined;
@@ -14,10 +14,11 @@ type RootStackParamList = {
 function HomeScreen() {
   const [records, setRecords] = useState<FlightLog[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const repository = new FileSystemFlightLogRepository();
 
   useEffect(() => {
     const loadLogs = async () => {
-      const data: FlightLog[] = await Storage.loadFlightLogs();
+      const data = await repository.loadFlightLogs();
       setRecords(data);
     };
     loadLogs();
