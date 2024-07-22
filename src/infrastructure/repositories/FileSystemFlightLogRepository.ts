@@ -5,7 +5,7 @@ import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
 const logsPath = `${directoryPath}/flight_logs.json`;
 const exportPath = `${directoryPath}/flight_logs.csv`;
-const settingsPath = `${RNFS.DownloadDirectoryPath}/flightReport/settings.json`;
+const settingsPath = `${directoryPath}/settings.json`;
 
 const ensureSettingsFileExists = async () => {
   const exists = await RNFS.exists(settingsPath);
@@ -34,12 +34,38 @@ const ensureFileExists = async (filePath: string, defaultContent: any) => {
   }
 };
 
+const loadCSVFlightLogs = async (): Promise<FlightLog[]> => {
+  const csv = await RNFS.readFile(exportPath);
+  const rows = csv.split('\n');
+  const flightLogs: FlightLog[] = rows.slice(1).map(row => {
+    const [key, details] = row.split(',');
+    return {key, details};
+  });
+  return flightLogs;
+};
+
+const loadJSONFlightLogs = async (): Promise<FlightLog[]> => {
+  const contents = await RNFS.readFile(logsPath);
+  return JSON.parse(contents);
+};
+
 export class FileSystemFlightLogRepository implements FlightLogRepository {
   async loadFlightLogs(): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    await ensureFileExists(logsPath, []);
-    const contents = await RNFS.readFile(logsPath);
-    return JSON.parse(contents);
+    const csvExists = await RNFS.exists(exportPath);
+    const jsonExists = await RNFS.exists(logsPath);
+    const settings = await loadSettings();
+    const priority = settings.priority || 'csv'; // デフォルトはCSV優先
+
+    if (priority === 'csv' && csvExists) {
+      return await loadCSVFlightLogs();
+    } else if (jsonExists) {
+      return await loadJSONFlightLogs();
+    } else if (csvExists) {
+      return await loadCSVFlightLogs();
+    } else {
+      return [];
+    }
   }
 
   async saveFlightLog(newLog: FlightLog): Promise<void> {
