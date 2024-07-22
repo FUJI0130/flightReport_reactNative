@@ -1,10 +1,13 @@
 import 'react-native-gesture-handler';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
+import { loadSettings } from './infrastructure/repositories/FileSystemFlightLogRepository';
 
 const App: React.FC = () => {
+  const [settings, setSettings] = useState(null);
+
   useEffect(() => {
     const requestStoragePermission = async () => {
       if (Platform.OS === 'android') {
@@ -30,11 +33,17 @@ const App: React.FC = () => {
       }
     };
 
+    const loadAppSettings = async () => {
+      const loadedSettings = await loadSettings();
+      setSettings(loadedSettings);
+      console.log('Loaded settings:', loadedSettings);
+    };
+
     requestStoragePermission();
+    loadAppSettings();
   }, []);
 
   return <AppNavigator />;
 };
 
 export default App;
-

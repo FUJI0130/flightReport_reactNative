@@ -5,6 +5,20 @@ import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
 const logsPath = `${directoryPath}/flight_logs.json`;
 const exportPath = `${directoryPath}/flight_logs.csv`;
+const settingsPath = `${RNFS.DownloadDirectoryPath}/flightReport/settings.json`;
+
+const ensureSettingsFileExists = async () => {
+  const exists = await RNFS.exists(settingsPath);
+  if (!exists) {
+    await RNFS.writeFile(settingsPath, JSON.stringify({}));
+  }
+};
+
+export const loadSettings = async (): Promise<any> => {
+  await ensureSettingsFileExists();
+  const contents = await RNFS.readFile(settingsPath);
+  return JSON.parse(contents);
+};
 
 const ensureDirectoryExists = async () => {
   const exists = await RNFS.exists(directoryPath);
