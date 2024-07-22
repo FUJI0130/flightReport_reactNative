@@ -57,15 +57,26 @@ export class FileSystemFlightLogRepository implements FlightLogRepository {
     const settings = await loadSettings();
     const priority = settings.priority || 'csv'; // デフォルトはCSV優先
 
-    if (priority === 'csv' && csvExists) {
-      return await loadCSVFlightLogs();
-    } else if (jsonExists) {
-      return await loadJSONFlightLogs();
-    } else if (csvExists) {
-      return await loadCSVFlightLogs();
+    if (priority === 'csv') {
+      if (csvExists) {
+        return await loadCSVFlightLogs();
+      } else if (jsonExists) {
+        return await loadJSONFlightLogs();
+      }
+    } else if (priority === 'json') {
+      if (jsonExists) {
+        return await loadJSONFlightLogs();
+      } else if (csvExists) {
+        return await loadCSVFlightLogs();
+      }
     } else {
-      return [];
+      throw new Error(
+        `設定ファイルのpriorityに対応外のファイル形式が指定されています: ${priority}. 'csv' または 'json' のいずれかを指定してください。`,
+      );
     }
+
+    // CSVもJSONも存在しない場合は空の配列を返す
+    return [];
   }
 
   async saveFlightLog(newLog: FlightLog): Promise<void> {
