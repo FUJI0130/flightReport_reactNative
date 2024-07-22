@@ -5,6 +5,20 @@ import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
 const logsPath = `${directoryPath}/flight_logs.json`;
 const exportPath = `${directoryPath}/flight_logs.csv`;
+const settingsPath = `${directoryPath}/settings.json`;
+
+const ensureSettingsFileExists = async () => {
+  const exists = await RNFS.exists(settingsPath);
+  if (!exists) {
+    await RNFS.writeFile(settingsPath, JSON.stringify({}));
+  }
+};
+
+export const loadSettings = async (): Promise<any> => {
+  await ensureSettingsFileExists();
+  const contents = await RNFS.readFile(settingsPath);
+  return JSON.parse(contents);
+};
 
 const ensureDirectoryExists = async () => {
   const exists = await RNFS.exists(directoryPath);
@@ -20,12 +34,49 @@ const ensureFileExists = async (filePath: string, defaultContent: any) => {
   }
 };
 
+const loadCSVFlightLogs = async (): Promise<FlightLog[]> => {
+  const csv = await RNFS.readFile(exportPath);
+  const rows = csv.split('\n');
+  const flightLogs: FlightLog[] = rows.slice(1).map(row => {
+    const [key, details] = row.split(',');
+    return {key, details};
+  });
+  return flightLogs;
+};
+
+const loadJSONFlightLogs = async (): Promise<FlightLog[]> => {
+  const contents = await RNFS.readFile(logsPath);
+  return JSON.parse(contents);
+};
+
 export class FileSystemFlightLogRepository implements FlightLogRepository {
   async loadFlightLogs(): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    await ensureFileExists(logsPath, []);
-    const contents = await RNFS.readFile(logsPath);
-    return JSON.parse(contents);
+    const csvExists = await RNFS.exists(exportPath);
+    const jsonExists = await RNFS.exists(logsPath);
+    const settings = await loadSettings();
+    const priority = settings.priority || 'csv'; // デフォルトはCSV優先
+
+    if (priority === 'csv') {
+      if (csvExists) {
+        return await loadCSVFlightLogs();
+      } else if (jsonExists) {
+        return await loadJSONFlightLogs();
+      }
+    } else if (priority === 'json') {
+      if (jsonExists) {
+        return await loadJSONFlightLogs();
+      } else if (csvExists) {
+        return await loadCSVFlightLogs();
+      }
+    } else {
+      throw new Error(
+        `設定ファイルのpriorityに対応外のファイル形式が指定されています: ${priority}. 'csv' または 'json' のいずれかを指定してください。`,
+      );
+    }
+
+    // CSVもJSONも存在しない場合は空の配列を返す
+    return [];
   }
 
   async saveFlightLog(newLog: FlightLog): Promise<void> {
