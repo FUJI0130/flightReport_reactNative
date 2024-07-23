@@ -1,6 +1,11 @@
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/models/FlightLog';
 import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
+import {
+  getFilesWithExtension,
+  loadCSVFlightLogsFromFile,
+  loadJSONFlightLogsFromFile,
+} from '../../utils/flightLogUtils';
 
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
 const logsPath = `${directoryPath}/flight_logs.json`;
@@ -27,47 +32,31 @@ const ensureDirectoryExists = async () => {
   }
 };
 
-const ensureFileExists = async (filePath: string, defaultContent: any) => {
-  const exists = await RNFS.exists(filePath);
-  if (!exists) {
-    await RNFS.writeFile(filePath, JSON.stringify(defaultContent));
-  }
-};
-
-const loadCSVFlightLogs = async (): Promise<FlightLog[]> => {
-  const csv = await RNFS.readFile(exportPath);
-  const rows = csv.split('\n');
-  const flightLogs: FlightLog[] = rows.slice(1).map(row => {
-    const [key, details] = row.split(',');
-    return {key, details};
-  });
-  return flightLogs;
-};
-
-const loadJSONFlightLogs = async (): Promise<FlightLog[]> => {
-  const contents = await RNFS.readFile(logsPath);
-  return JSON.parse(contents);
-};
-
 export class FileSystemFlightLogRepository implements FlightLogRepository {
   async loadFlightLogs(): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    const csvExists = await RNFS.exists(exportPath);
-    const jsonExists = await RNFS.exists(logsPath);
     const settings = await loadSettings();
     const priority = settings.priority || 'csv'; // デフォルトはCSV優先
 
     if (priority === 'csv') {
-      if (csvExists) {
-        return await loadCSVFlightLogs();
-      } else if (jsonExists) {
-        return await loadJSONFlightLogs();
+      const csvFiles = await getFilesWithExtension('.csv');
+      if (csvFiles.length === 1) {
+        return await loadCSVFlightLogsFromFile(csvFiles[0]);
+      } else if (csvFiles.length > 1) {
+        // 複数のCSVファイルが存在する場合に選択を要求
+        throw new Error(
+          `複数のCSVファイルが見つかりました: ${csvFiles.join(', ')}`,
+        );
       }
     } else if (priority === 'json') {
-      if (jsonExists) {
-        return await loadJSONFlightLogs();
-      } else if (csvExists) {
-        return await loadCSVFlightLogs();
+      const jsonFiles = await getFilesWithExtension('.json');
+      if (jsonFiles.length === 1) {
+        return await loadJSONFlightLogsFromFile(jsonFiles[0]);
+      } else if (jsonFiles.length > 1) {
+        // 複数のJSONファイルが存在する場合に選択を要求
+        throw new Error(
+          `複数のJSONファイルが見つかりました: ${jsonFiles.join(', ')}`,
+        );
       }
     } else {
       throw new Error(
@@ -113,5 +102,19 @@ export class FileSystemFlightLogRepository implements FlightLogRepository {
     }
 
     return csvRows.join('\n');
+  }
+
+  // 追加: CSVファイルを読み込むメソッド
+  public async loadCSVFlightLogsFromFile(
+    filePath: string,
+  ): Promise<FlightLog[]> {
+    return loadCSVFlightLogsFromFile(filePath);
+  }
+
+  // 追加: JSONファイルを読み込むメソッド
+  public async loadJSONFlightLogsFromFile(
+    filePath: string,
+  ): Promise<FlightLog[]> {
+    return loadJSONFlightLogsFromFile(filePath);
   }
 }
