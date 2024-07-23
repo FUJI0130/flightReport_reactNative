@@ -12,9 +12,10 @@ type RootStackParamList = {
   Detail: { record: FlightLog };
   AddRecord: undefined;
   Export: undefined;
+  // InspectionRecord: undefined; // 後で追加予定
+  // MaintenanceRecord: undefined; // 後で追加予定
 };
 
-// ファイルパスからファイル名を抽出する関数
 const extractFileName = (filePath: string): string => {
   return filePath.split('/').pop() || filePath;
 };
@@ -82,6 +83,21 @@ function HomeScreen() {
           onPress={() => navigation.navigate('Export')}
         />
       </View>
+      <View style={styles.menuContainer}>
+        <Button
+          title="Flight Record"
+          onPress={() => navigation.navigate('AddRecord')}
+        />
+        {/* 後で追加予定 */}
+        {/* <Button
+          title="Inspection Record"
+          onPress={() => navigation.navigate('InspectionRecord')}
+        />
+        <Button
+          title="Maintenance Record"
+          onPress={() => navigation.navigate('MaintenanceRecord')}
+        /> */}
+      </View>
     </View>
   );
 }
@@ -94,6 +110,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  menuContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 10,

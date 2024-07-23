@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import FlightLogItem from './FlightLogItem';
-import { FlightLog } from '../domain/models/FlightLog';
+import { FlightLog } from './../domain/models/FlightLog';
 
 interface FlightLogListProps {
   logs: FlightLog[];
