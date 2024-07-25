@@ -1,9 +1,9 @@
-import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
+// src/application/usecases/ExportFlightLogsUseCase.ts
+import {createFlightLogRepository} from '../../infrastructure/repositories/FlightLogRepositoryFactory';
 
 export class ExportFlightLogsUseCase {
-  constructor(private flightLogRepository: FlightLogRepository) {}
-
   async execute(): Promise<void> {
-    await this.flightLogRepository.exportFlightLogsToCSV();
+    const flightLogRepository = await createFlightLogRepository();
+    await flightLogRepository.export();
   }
 }

@@ -1,25 +1,36 @@
-// src/presentation/screens/AddRecordScreen.tsx
+// src/presentation/screens/NewFlightLogScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import Header from '../../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
-import Header from '../../components/Header';
 
-const AddRecordScreen: React.FC = () => {
+const NewFlightLogScreen: React.FC = () => {
   const [details, setDetails] = useState('');
+  const [fileName, setFileName] = useState('');
   const navigation = useNavigation();
 
   const handleSave = async () => {
     const repository = await createFlightLogRepository();
-    await repository.save({ key: new Date().toISOString(), details });
-    console.log('Saved Record:', details);
+    const newLog = { key: new Date().toISOString(), details };
+    await repository.save(newLog, fileName);
+
+    // 保存したファイルのパスを確認するログ
+    console.log('Saved Record:', newLog);
+
     navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <Header title="Add New Flight Record" />
+      <Header title="New Flight Log" />
       <View style={styles.content}>
+        <TextInput
+          style={styles.input}
+          placeholder="File Name (optional, .csv or .json)"
+          value={fileName}
+          onChangeText={setFileName}
+        />
         <TextInput
           style={styles.input}
           placeholder="Flight Details"
@@ -52,4 +63,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddRecordScreen;
+export default NewFlightLogScreen;

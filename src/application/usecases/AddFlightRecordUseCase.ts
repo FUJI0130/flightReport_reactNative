@@ -1,14 +1,14 @@
-import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
+// src/application/usecases/AddFlightRecordUseCase.ts
+import {createFlightLogRepository} from '../../infrastructure/repositories/FlightLogRepositoryFactory';
 import {FlightLog} from '../../domain/models/FlightLog';
 
 export class AddFlightRecordUseCase {
-  constructor(private flightLogRepository: FlightLogRepository) {}
-
   async execute(details: string): Promise<void> {
+    const flightLogRepository = await createFlightLogRepository();
     const newLog: FlightLog = {
       key: new Date().toISOString(),
       details,
     };
-    await this.flightLogRepository.saveFlightLog(newLog);
+    await flightLogRepository.save(newLog);
   }
 }

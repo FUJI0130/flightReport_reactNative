@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Button, Alert, Text, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FlightLog } from '../../domain/models/FlightLog';
-import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
-import { GetFlightLogsUseCase } from '../../application/usecases/GetFlightLogsUseCase';
+import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
+import { IDataStore } from '../../domain/repositories/IDataStore';
 import FlightLogList from '../../components/FlightLogList';
 import Header from '../../components/Header';
 
@@ -12,6 +12,7 @@ type RootStackParamList = {
   Detail: { record: FlightLog };
   AddRecord: undefined;
   Export: undefined;
+  NewFlightLog: undefined;
 };
 
 const extractFileName = (filePath: string): string => {
@@ -21,41 +22,69 @@ const extractFileName = (filePath: string): string => {
 function FlightRecordsScreen() {
   const [records, setRecords] = useState<FlightLog[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const repository = new FileSystemFlightLogRepository();
-  const getFlightLogsUseCase = new GetFlightLogsUseCase(repository);
+  const [repository, setRepository] = useState<IDataStore<FlightLog> | null>(null);
 
   useEffect(() => {
-    const loadLogs = async () => {
-      try {
-        const data = await getFlightLogsUseCase.execute();
-        setRecords(data);
-      } catch (error: unknown) {
-        if (error instanceof Error && error.message.includes('複数の')) {
-          const files = error.message.split(': ')[1].split(', ');
-          Alert.alert(
-            'ファイル選択',
-            '読み込むファイルを選択してください。',
-            files.map((file: string) => ({
-              text: extractFileName(file),
-              onPress: async () => {
-                try {
-                  const data = await (file.endsWith('.csv')
-                    ? repository.loadCSVFlightLogsFromFile(file)
-                    : repository.loadJSONFlightLogsFromFile(file));
-                  setRecords(data);
-                } catch (e) {
-                  console.error(e);
+    const initRepository = async () => {
+      const repo = await createFlightLogRepository();
+      setRepository(repo);
+    };
+
+    initRepository();
+  }, []);
+
+  useEffect(() => {
+    const listAndSelectFiles = async () => {
+      if (repository) {
+        try {
+          const files = await repository.listFiles();
+          if (files.length === 0) {
+            // No files found, navigate to new flight log screen
+            navigation.navigate('NewFlightLog');
+          } else if (files.length === 1) {
+            // Only one file found, load it directly
+            const data = await repository.load(files[0]);
+            setRecords(data);
+          } else {
+            // Multiple files found, show selection popup
+            Alert.alert(
+              'ファイル選択',
+              '読み込むファイルを選択してください。',
+              [
+                ...files.map((file: string) => ({
+                  text: extractFileName(file),
+                  onPress: async () => {
+                    try {
+                      const data = await repository.load(file);
+                      setRecords(data);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  },
+                })),
+                {
+                  text: '新規作成',
+                  onPress: () => {
+                    navigation.navigate('NewFlightLog');
+                  },
+                  style: 'default',
+                },
+                {
+                  text: 'キャンセル',
+                  style: 'cancel'
                 }
-              },
-            })),
-          );
-        } else {
-          console.error(error);
+              ],
+              { cancelable: true }
+            );
+          }
+        } catch (error) {
+          console.error('Error loading logs:', error);
         }
       }
     };
-    loadLogs();
-  }, []);
+
+    listAndSelectFiles();
+  }, [repository]);
 
   const handleLogPress = (record: FlightLog) => {
     navigation.navigate('Detail', { record });
