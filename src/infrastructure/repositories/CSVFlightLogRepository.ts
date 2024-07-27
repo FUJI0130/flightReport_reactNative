@@ -26,7 +26,10 @@ export class CSVFlightLogRepository implements IDataStore<FlightLog> {
 
   async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    const filePath = `${directoryPath}/${fileName}`;
+    const filePath = fileName.includes(RNFS.DownloadDirectoryPath)
+      ? fileName
+      : `${directoryPath}/${fileName}`;
+    console.log(`Loading file: ${filePath}`);
     const exists = await RNFS.exists(filePath);
     if (!exists) {
       throw new Error(`File does not exist: ${filePath}`);

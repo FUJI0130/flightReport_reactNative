@@ -22,10 +22,12 @@ function FlightRecordsScreen() {
   const [validFiles, setValidFiles] = useState<string[]>([]);
   const route = useRoute<RouteProp<RootStackParamList, 'FlightRecords'>>();
 
-  const loadLogs = async (fileName: string) => {
+const loadLogs = async (fileName: string) => {
     if (repository) {
       try {
-        const data = await repository.load(fileName);
+        const filePath = fileName.includes(RNFS.DownloadDirectoryPath) ? fileName : `${RNFS.DownloadDirectoryPath}/flightReport/${fileName}`;
+        console.log(`Loading logs from: ${filePath}`);
+        const data = await repository.load(filePath);
         setRecords(data);
       } catch (error) {
         Alert.alert(
@@ -38,10 +40,12 @@ function FlightRecordsScreen() {
             }
           ]
         );
-        console.error(error);
+        console.error(`Load logs error: ${error} FileName: ${fileName}`);
       }
     }
   };
+
+
 
   const showFileSelectionPopup = async () => {
     if (repository) {
@@ -74,13 +78,15 @@ function FlightRecordsScreen() {
     initRepository();
   }, []);
 
-  useEffect(() => {
-    if (route.params?.newFileName) {
-      loadLogs(route.params.newFileName);
-    } else {
-      showFileSelectionPopup();
-    }
-  }, [repository, route.params?.newFileName]);
+useEffect(() => {
+  if (route.params?.newFileName) {
+    const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${route.params.newFileName}`;
+    loadLogs(filePath);
+  } else {
+    showFileSelectionPopup();
+  }
+}, [repository, route.params?.newFileName]);
+
 
   const handleFileSelect = (fileName: string) => {
     setFileSelectionVisible(false);
@@ -127,7 +133,7 @@ function FlightRecordsScreen() {
       </View>
       <FileSelectionDialog
         visible={fileSelectionVisible}
-        files={validFiles.map(extractFileName)} // ファイル名のみ表示
+        files={validFiles.map(extractFileName)}
         onSelect={handleFileSelect}
         onCreateNew={handleNewFile}
         onCancel={() => setFileSelectionVisible(false)}

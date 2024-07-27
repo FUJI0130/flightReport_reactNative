@@ -13,37 +13,41 @@ const NewFlightLogScreen: React.FC = () => {
   const [fileName, setFileName] = useState('');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const handleSave = async () => {
-    const repository = await createFlightLogRepository();
-    const newLog: FlightLog = {
-      key: new Date().toISOString(),
-      date: new Date().toISOString(),
-      pilotName: 'Test Pilot',
-      registrationNumber: 'ABC123',
-      flightPurposeAndRoute: details,
-      takeoffLocationAndTime: 'Location A',
-      landingLocationAndTime: 'Location B',
-      flightDuration: '1h',
-      issues: 'None',
-    };
-
-    const finalFileName = fileName.endsWith('.csv') ? fileName : `${fileName}.csv`;
-    const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${finalFileName}`;
-
-    try {
-      await repository.save(newLog, finalFileName);
-      navigation.reset({
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          { name: 'FlightRecords', params: { newFileName: filePath } },
-        ],
-      });
-    } catch (error) {
-      Alert.alert('エラー', 'ファイルの保存に失敗しました');
-      console.error('File save error:', error);
-    }
+const handleSave = async () => {
+  const repository = await createFlightLogRepository();
+  const newLog: FlightLog = {
+    key: new Date().toISOString(),
+    date: new Date().toISOString(),
+    pilotName: 'Test Pilot',
+    registrationNumber: 'ABC123',
+    flightPurposeAndRoute: details,
+    takeoffLocationAndTime: 'Location A',
+    landingLocationAndTime: 'Location B',
+    flightDuration: '1h',
+    issues: 'None',
   };
+
+  const finalFileName = fileName.endsWith('.csv') ? fileName : `${fileName}.csv`;
+  const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${finalFileName}`;
+  console.log(`Creating new file: ${filePath}`);
+
+  try {
+    await repository.save(newLog, finalFileName);
+    navigation.reset({
+      index: 1,
+      routes: [
+        { name: 'Home' },
+        { name: 'FlightRecords', params: { newFileName: finalFileName } }, // 修正
+      ],
+    });
+  } catch (error) {
+    Alert.alert('エラー', 'ファイルの保存に失敗しました');
+    console.error('File save error:', error);
+  }
+};
+
+
+
 
   return (
     <View style={styles.container}>
@@ -88,3 +92,4 @@ const styles = StyleSheet.create({
 });
 
 export default NewFlightLogScreen;
+

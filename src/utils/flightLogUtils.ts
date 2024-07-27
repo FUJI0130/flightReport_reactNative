@@ -26,11 +26,10 @@ export const validateCSVFormat = (csvContent: string): boolean => {
     'flightDuration',
     'issues',
   ];
-  const rows = csvContent.split('\n').filter(row => row.trim() !== '');
-  if (rows.length === 0) {
-    return false;
-  }
-  const headers = rows[0].split(',').map(header => header.trim());
+  const rows = csvContent.split('\n').filter(Boolean);
+  const headers = rows[0].split(',');
+  console.log('CSV Headers:', headers); // デバッグ情報追加
+  console.log('Expected Headers:', expectedHeaders); // デバッグ情報追加
   return expectedHeaders.every((header, index) => header === headers[index]);
 };
 
@@ -41,7 +40,11 @@ export const loadCSVFlightLogsFromFile = async (
   if (!csv || csv.trim() === '') {
     return [];
   }
+  console.log(`CSV Content from ${filePath}: ${csv}`);
   const rows = csv.split('\n').filter(Boolean);
+  const headers = rows[0].split(',');
+  console.log(`CSV Headers: ${headers}`);
+
   const flightLogs: FlightLog[] = rows.slice(1).map(row => {
     const [
       key,
