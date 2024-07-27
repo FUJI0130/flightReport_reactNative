@@ -1,3 +1,5 @@
+// src/infrastructure/repositories/CSVFlightLogRepository.ts
+
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/models/FlightLog';
 import {IDataStore} from '../../domain/repositories/IDataStore';
@@ -23,7 +25,8 @@ export class CSVFlightLogRepository implements IDataStore<FlightLog> {
 
   async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    return await loadCSVFlightLogsFromFile(fileName);
+    const filePath = `${directoryPath}/${fileName}`;
+    return await loadCSVFlightLogsFromFile(filePath);
   }
 
   async save(item: FlightLog, fileName?: string): Promise<void> {

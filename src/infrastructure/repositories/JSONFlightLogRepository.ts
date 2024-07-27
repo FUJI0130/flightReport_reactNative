@@ -1,3 +1,5 @@
+// src/infrastructure/repositories/JSONFlightLogRepository.ts
+
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/models/FlightLog';
 import {IDataStore} from '../../domain/repositories/IDataStore';
@@ -23,7 +25,8 @@ export class JSONFlightLogRepository implements IDataStore<FlightLog> {
 
   async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    return await loadJSONFlightLogsFromFile(fileName);
+    const filePath = `${directoryPath}/${fileName}`;
+    return await loadJSONFlightLogsFromFile(filePath);
   }
 
   async save(item: FlightLog, fileName?: string): Promise<void> {
@@ -33,22 +36,22 @@ export class JSONFlightLogRepository implements IDataStore<FlightLog> {
     let jsonData: FlightLog[] = [];
     const exists = await RNFS.exists(filePath);
     if (exists) {
-      const contents = await RNFS.readFile(filePath);
-      jsonData = JSON.parse(contents);
+      const fileContents = await RNFS.readFile(filePath);
+      jsonData = JSON.parse(fileContents);
     }
     jsonData.push(item);
     await RNFS.writeFile(filePath, JSON.stringify(jsonData), 'utf8');
   }
 
   async export(): Promise<void> {
-    const flightLogs = await this.listFiles();
+    const flightLogs = await this.load('flight_logs.json');
     if (flightLogs.length === 0) {
       throw new Error('No flight logs available to export');
     }
-    const jsonData = flightLogs.map(file => loadJSONFlightLogsFromFile(file));
     await RNFS.writeFile(
       `${directoryPath}/flight_logs.json`,
-      JSON.stringify(jsonData),
+      JSON.stringify(flightLogs),
+      'utf8',
     );
   }
 }
