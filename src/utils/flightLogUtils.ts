@@ -18,8 +18,29 @@ export const loadCSVFlightLogsFromFile = async (
   const csv = await RNFS.readFile(filePath);
   const rows = csv.split('\n');
   const flightLogs: FlightLog[] = rows.slice(1).map(row => {
-    const [key, details] = row.split(',');
-    return {key, details};
+    const [
+      key,
+      date,
+      pilotName,
+      registrationNumber,
+      flightPurposeAndRoute,
+      takeoffLocationAndTime,
+      landingLocationAndTime,
+      flightDuration,
+      issues,
+    ] = row.split(',');
+
+    return {
+      key,
+      date,
+      pilotName,
+      registrationNumber,
+      flightPurposeAndRoute,
+      takeoffLocationAndTime,
+      landingLocationAndTime,
+      flightDuration,
+      issues,
+    };
   });
   return flightLogs;
 };
@@ -29,4 +50,21 @@ export const loadJSONFlightLogsFromFile = async (
 ): Promise<FlightLog[]> => {
   const contents = await RNFS.readFile(filePath);
   return JSON.parse(contents);
+};
+
+export const validateCSVFormat = (csvContent: string): boolean => {
+  const expectedHeaders = [
+    'key',
+    'date',
+    'pilotName',
+    'registrationNumber',
+    'flightPurposeAndRoute',
+    'takeoffLocationAndTime',
+    'landingLocationAndTime',
+    'flightDuration',
+    'issues',
+  ];
+  const rows = csvContent.split('\n');
+  const headers = rows[0].split(',');
+  return expectedHeaders.every((header, index) => header === headers[index]);
 };

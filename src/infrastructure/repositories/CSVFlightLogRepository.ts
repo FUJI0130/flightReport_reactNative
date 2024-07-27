@@ -6,6 +6,7 @@ import {IDataStore} from '../../domain/repositories/IDataStore';
 import {
   getFilesWithExtension,
   loadCSVFlightLogsFromFile,
+  validateCSVFormat,
 } from '../../utils/flightLogUtils';
 
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
@@ -26,6 +27,10 @@ export class CSVFlightLogRepository implements IDataStore<FlightLog> {
   async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
     const filePath = `${directoryPath}/${fileName}`;
+    const csvContent = await RNFS.readFile(filePath);
+    if (!validateCSVFormat(csvContent)) {
+      throw new Error('CSVファイルの形式が正しくありません');
+    }
     return await loadCSVFlightLogsFromFile(filePath);
   }
 

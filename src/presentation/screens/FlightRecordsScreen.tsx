@@ -1,3 +1,5 @@
+// src/presentation/screens/FlightRecordsScreen.tsx
+
 import React, { useEffect, useState } from 'react';
 import { View, Button, Alert, Text, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -6,6 +8,8 @@ import { createFlightLogRepository } from '../../infrastructure/repositories/Fli
 import { IDataStore } from '../../domain/repositories/IDataStore';
 import FlightLogList from '../../components/FlightLogList';
 import Header from '../../components/Header';
+import RNFS from 'react-native-fs';
+import { validateCSVFormat } from '../../utils/flightLogUtils';
 
 type RootStackParamList = {
   Home: undefined;
@@ -34,56 +38,74 @@ function FlightRecordsScreen() {
   }, []);
 
   useEffect(() => {
-    const listAndSelectFiles = async () => {
+    const loadLogs = async (fileName: string) => {
       if (repository) {
         try {
-          const files = await repository.listFiles();
-          if (files.length === 0) {
-            // No files found, navigate to new flight log screen
-            navigation.navigate('NewFlightLog');
-          } else if (files.length === 1) {
-            // Only one file found, load it directly
-            const data = await repository.load(files[0]);
-            setRecords(data);
-          } else {
-            // Multiple files found, show selection popup
-            Alert.alert(
-              'ファイル選択',
-              '読み込むファイルを選択してください。',
-              [
-                ...files.map((file: string) => ({
-                  text: extractFileName(file),
-                  onPress: async () => {
-                    try {
-                      const data = await repository.load(file);
-                      setRecords(data);
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  },
-                })),
-                {
-                  text: '新規作成',
-                  onPress: () => {
-                    navigation.navigate('NewFlightLog');
-                  },
-                  style: 'default',
-                },
-                {
-                  text: 'キャンセル',
-                  style: 'cancel'
-                }
-              ],
-              { cancelable: true }
-            );
-          }
+          const data = await repository.load(fileName);
+          setRecords(data);
         } catch (error) {
-          console.error('Error loading logs:', error);
+          Alert.alert(
+            'エラー',
+            'CSVファイルの形式が正しくありません',
+            [
+              {
+                text: 'OK',
+                onPress: () => showFileSelectionPopup()
+              }
+            ]
+          );
+          console.error(error);
         }
       }
     };
 
-    listAndSelectFiles();
+    const showFileSelectionPopup = async () => {
+      if (repository) {
+        try {
+          const files = await repository.listFiles();
+          const validFiles = [];
+
+          for (const file of files) {
+            const csvContent = await RNFS.readFile(file);
+            if (validateCSVFormat(csvContent)) {
+              validFiles.push(file);
+            }
+          }
+
+          if (validFiles.length === 0) {
+            Alert.alert('No valid files found', '新しいファイルを作成してください。');
+            return;
+          }
+
+          Alert.alert(
+            'ファイル選択',
+            '読み込むファイルを選択してください。',
+            [
+              ...validFiles.map((file: string) => ({
+                text: extractFileName(file),
+                onPress: () => loadLogs(file),
+              })),
+              {
+                text: '新規作成',
+                onPress: () => {
+                  navigation.navigate('NewFlightLog');
+                },
+                style: 'default',
+              },
+              {
+                text: 'キャンセル',
+                style: 'cancel',
+              },
+            ],
+            { cancelable: true }
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    showFileSelectionPopup();
   }, [repository]);
 
   const handleLogPress = (record: FlightLog) => {
