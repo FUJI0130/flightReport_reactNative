@@ -1,12 +1,10 @@
 // src/infrastructure/repositories/CSVFlightLogRepository.ts
-
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/models/FlightLog';
 import {IDataStore} from '../../domain/repositories/IDataStore';
 import {
   getFilesWithExtension,
   loadCSVFlightLogsFromFile,
-  validateCSVFormat,
 } from '../../utils/flightLogUtils';
 
 const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
@@ -21,35 +19,43 @@ const ensureDirectoryExists = async () => {
 export class CSVFlightLogRepository implements IDataStore<FlightLog> {
   async listFiles(): Promise<string[]> {
     await ensureDirectoryExists();
-    return await getFilesWithExtension('.csv');
+    const files = await getFilesWithExtension('.csv');
+    console.log('CSV files:', files);
+    return files;
   }
 
   async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
     const filePath = `${directoryPath}/${fileName}`;
-    const csvContent = await RNFS.readFile(filePath);
-    if (!validateCSVFormat(csvContent)) {
-      throw new Error('CSVファイルの形式が正しくありません');
+    const exists = await RNFS.exists(filePath);
+    if (!exists) {
+      throw new Error(`File does not exist: ${filePath}`);
     }
     return await loadCSVFlightLogsFromFile(filePath);
   }
 
   async save(item: FlightLog, fileName?: string): Promise<void> {
     await ensureDirectoryExists();
-    const finalFileName = fileName || `flight_log_${new Date().getTime()}.csv`;
+    const finalFileName = fileName?.endsWith('.csv')
+      ? fileName
+      : `${fileName}.csv`;
     const filePath = `${directoryPath}/${finalFileName}`;
     let csvData = '';
+
     const exists = await RNFS.exists(filePath);
     if (exists) {
       csvData = await RNFS.readFile(filePath);
+      csvData = csvData.trim();
     }
+
     const newCSVData = this.jsonToCSV([item]);
-    csvData += `\n${newCSVData}`;
+    csvData += csvData ? `\n${newCSVData}` : newCSVData;
+
     await RNFS.writeFile(filePath, csvData, 'utf8');
   }
 
   async export(): Promise<void> {
-    const flightLogs = await this.load('flight_logs.csv');
+    const flightLogs = await this.load('');
     if (flightLogs.length === 0) {
       throw new Error('No flight logs available to export');
     }

@@ -1,24 +1,48 @@
 // src/presentation/screens/NewFlightLogScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import Header from '../../components/Header';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
+import { FlightLog } from '../../domain/models/FlightLog';
+import RNFS from 'react-native-fs';
+import { RootStackParamList } from '../../navigation/ParamList';
 
 const NewFlightLogScreen: React.FC = () => {
   const [details, setDetails] = useState('');
   const [fileName, setFileName] = useState('');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleSave = async () => {
     const repository = await createFlightLogRepository();
-    const newLog = { key: new Date().toISOString(), details };
-    await repository.save(newLog, fileName);
+    const newLog: FlightLog = {
+      key: new Date().toISOString(),
+      date: new Date().toISOString(),
+      pilotName: 'Test Pilot',
+      registrationNumber: 'ABC123',
+      flightPurposeAndRoute: details,
+      takeoffLocationAndTime: 'Location A',
+      landingLocationAndTime: 'Location B',
+      flightDuration: '1h',
+      issues: 'None',
+    };
 
-    // 保存したファイルのパスを確認するログ
-    console.log('Saved Record:', newLog);
+    const finalFileName = fileName.endsWith('.csv') ? fileName : `${fileName}.csv`;
+    const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${finalFileName}`;
 
-    navigation.goBack();
+    try {
+      await repository.save(newLog, finalFileName);
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          { name: 'FlightRecords', params: { newFileName: filePath } },
+        ],
+      });
+    } catch (error) {
+      Alert.alert('エラー', 'ファイルの保存に失敗しました');
+      console.error('File save error:', error);
+    }
   };
 
   return (
@@ -27,7 +51,7 @@ const NewFlightLogScreen: React.FC = () => {
       <View style={styles.content}>
         <TextInput
           style={styles.input}
-          placeholder="File Name (optional, .csv or .json)"
+          placeholder="File Name"
           value={fileName}
           onChangeText={setFileName}
         />

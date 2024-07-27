@@ -1,16 +1,13 @@
 import React from 'react';
 import { View, Button, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../navigation/ParamList';
 import Header from '../../components/Header';
 
-type RootStackParamList = {
-  Home: undefined;
-  FlightRecords: undefined;
-  NewFlightLog: undefined; // 新規作成画面のためのルートを追加
-};
+type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
 
-function HomeScreen() {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   return (
     <View style={styles.container}>
@@ -18,7 +15,7 @@ function HomeScreen() {
       <View style={styles.menuContainer}>
         <Button
           title="OPEN FLIGHT LOG"
-          onPress={() => navigation.navigate('FlightRecords')}
+          onPress={() => navigation.navigate('FlightRecords', { newFileName: undefined })}
         />
         <Button
           title="NEW FLIGHT LOG"
