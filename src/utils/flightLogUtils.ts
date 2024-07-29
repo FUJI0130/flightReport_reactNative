@@ -1,5 +1,8 @@
+// src/utils/flightLogUtils.ts
 import RNFS from 'react-native-fs';
-import {FlightLog} from '../domain/models/FlightLog';
+import {FlightLog} from '../domain/flightlog/FlightLog';
+import {FlightDate} from '../domain/shared/valueObjects/FlightDate';
+import {Location} from '../domain/flightlog/valueObjects/Location';
 
 export const getFilesWithExtension = async (
   extension: string,
@@ -57,17 +60,21 @@ export const loadCSVFlightLogsFromFile = async (
       flightDuration,
       issues,
     ] = row.split(',');
-    return {
+
+    const [takeoffLocation, takeoffTime] = takeoffLocationAndTime.split(' ');
+    const [landingLocation, landingTime] = landingLocationAndTime.split(' ');
+
+    return new FlightLog(
       key,
-      date,
+      FlightDate.create(date),
       pilotName,
       registrationNumber,
       flightPurposeAndRoute,
-      takeoffLocationAndTime,
-      landingLocationAndTime,
+      Location.create(takeoffLocation, takeoffTime),
+      Location.create(landingLocation, landingTime),
       flightDuration,
       issues,
-    };
+    );
   });
   return flightLogs;
 };

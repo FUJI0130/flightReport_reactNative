@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { FlightLog } from '../../domain/models/FlightLog';
+import { FlightLog } from '../../domain/flightlog/FlightLog';
 import Header from '../../components/Header';
 import { RootStackParamList } from '../../navigation/ParamList';
 

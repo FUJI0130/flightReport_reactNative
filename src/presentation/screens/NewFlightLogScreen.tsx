@@ -4,7 +4,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import Header from '../../components/Header';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
-import { FlightLog } from '../../domain/models/FlightLog';
+import { FlightLog } from '../../domain/flightlog/FlightLog';
 import RNFS from 'react-native-fs';
 import { RootStackParamList } from '../../navigation/ParamList';
 
@@ -17,7 +17,7 @@ const handleSave = async () => {
   const repository = await createFlightLogRepository();
   const newLog: FlightLog = {
     key: new Date().toISOString(),
-    date: new Date().toISOString(),
+    date: new FlightDate().toISOString(),
     pilotName: 'Test Pilot',
     registrationNumber: 'ABC123',
     flightPurposeAndRoute: details,

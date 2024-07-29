@@ -1,7 +1,7 @@
 import {CSVFlightLogRepository} from './CSVFlightLogRepository';
 import {JSONFlightLogRepository} from './JSONFlightLogRepository';
 import {IDataStore} from '../../domain/repositories/IDataStore';
-import {FlightLog} from '../../domain/models/FlightLog';
+import {FlightLog} from '../../domain/flightlog/FlightLog';
 import RNFS from 'react-native-fs';
 
 const settingsPath = `${RNFS.DownloadDirectoryPath}/flightReport/settings.json`;

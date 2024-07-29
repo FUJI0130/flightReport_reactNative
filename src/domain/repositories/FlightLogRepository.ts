@@ -1,4 +1,4 @@
-import {FlightLog} from '../models/FlightLog';
+import {FlightLog} from '../flightlog/FlightLog';
 
 export interface FlightLogRepository {
   loadFlightLogs(): Promise<FlightLog[]>;

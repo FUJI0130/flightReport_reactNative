@@ -1,7 +1,7 @@
 // src/infrastructure/repositories/JSONFlightLogRepository.ts
 
 import RNFS from 'react-native-fs';
-import {FlightLog} from '../../domain/models/FlightLog';
+import {FlightLog} from '../../domain/flightlog/FlightLog';
 import {IDataStore} from '../../domain/repositories/IDataStore';
 import {
   getFilesWithExtension,

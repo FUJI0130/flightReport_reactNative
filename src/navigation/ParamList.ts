@@ -1,4 +1,4 @@
-import {FlightLog} from '../domain/models/FlightLog';
+import {FlightLog} from '../domain/flightlog/FlightLog';
 
 export type RootStackParamList = {
   Home: undefined;

@@ -1,10 +1,10 @@
 // src/application/usecases/GetFlightLogsUseCase.ts
 import {createFlightLogRepository} from '../../infrastructure/repositories/FlightLogRepositoryFactory';
-import {FlightLog} from '../../domain/models/FlightLog';
+import {FlightLog} from '../../domain/flightlog/FlightLog';
 
 export class GetFlightLogsUseCase {
-  async execute(): Promise<FlightLog[]> {
+  async execute(fileName: string): Promise<FlightLog[]> {
     const flightLogRepository = await createFlightLogRepository();
-    return await flightLogRepository.load();
+    return await flightLogRepository.load(fileName);
   }
 }

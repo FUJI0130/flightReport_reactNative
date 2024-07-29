@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Button, Alert, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
-import { FlightLog } from '../../domain/models/FlightLog';
+import { FlightLog } from '../../domain/flightlog/FlightLog';
 import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
 import { IDataStore } from '../../domain/repositories/IDataStore';
 import Header from '../../components/Header';
