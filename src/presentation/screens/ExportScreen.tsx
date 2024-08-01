@@ -1,17 +1,18 @@
+// src/presentation/screens/ExportScreen.tsx
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
+import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
 import Header from '../../components/Header';
 
 const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
-  const repository = new FileSystemFlightLogRepository();
 
   const handleExport = async () => {
+    const repository = await createFlightLogRepository();
     try {
-      await repository.exportFlightLogsToCSV();
-      console.log('Exported flight logs to CSV');
+      await repository.export();
+      console.log('Exported flight logs');
       navigation.goBack();
     } catch (e) {
       console.error('Error exporting flight logs:', e);

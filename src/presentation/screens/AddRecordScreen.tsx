@@ -1,16 +1,17 @@
+// src/presentation/screens/AddRecordScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FileSystemFlightLogRepository } from '../../infrastructure/repositories/FileSystemFlightLogRepository';
+import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
 import Header from '../../components/Header';
 
 const AddRecordScreen: React.FC = () => {
   const [details, setDetails] = useState('');
   const navigation = useNavigation();
-  const repository = new FileSystemFlightLogRepository();
 
   const handleSave = async () => {
-    await repository.saveFlightLog({ key: new Date().toISOString(), details });
+    const repository = await createFlightLogRepository();
+    await repository.save({ key: new Date().toISOString(), details });
     console.log('Saved Record:', details);
     navigation.goBack();
   };

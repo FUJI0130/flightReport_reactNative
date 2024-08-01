@@ -1,10 +1,10 @@
-import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
-import {FlightLog} from '../../domain/models/FlightLog';
+// src/application/usecases/GetFlightLogsUseCase.ts
+import {createFlightLogRepository} from '../../infrastructure/repositories/FlightLogRepositoryFactory';
+import {FlightLog} from '../../domain/flightlog/FlightLog';
 
 export class GetFlightLogsUseCase {
-  constructor(private flightLogRepository: FlightLogRepository) {}
-
-  async execute(): Promise<FlightLog[]> {
-    return await this.flightLogRepository.loadFlightLogs();
+  async execute(fileName: string): Promise<FlightLog[]> {
+    const flightLogRepository = await createFlightLogRepository();
+    return await flightLogRepository.load(fileName);
   }
 }

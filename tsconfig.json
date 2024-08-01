@@ -2,10 +2,22 @@
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true, // TypeScriptライブラリの型チェックをスキップ
+    "allowSyntheticDefaultImports": true, // デフォルトインポートを許可
+    "strict": true, // 厳格な型チェックを有効化
+    "baseUrl": ".", // プロジェクトのルートを指定
+    "paths": {
+      "*": ["src/*"] // モジュール解決パスを指定
+    }
   },
   "include": [
     "src/**/*",
     "app.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist"
   ]
 }

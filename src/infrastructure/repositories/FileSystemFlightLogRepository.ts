@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs';
-import {FlightLog} from '../../domain/models/FlightLog';
+import {FlightLog} from '../../domain/flightlog/FlightLog';
 import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
 import {
   getFilesWithExtension,

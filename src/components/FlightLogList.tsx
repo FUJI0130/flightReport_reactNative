@@ -1,7 +1,7 @@
+// src/components/FlightLogList.tsx
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import FlightLogItem from './FlightLogItem';
-import { FlightLog } from './../domain/models/FlightLog';
+import { FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlightLog } from '../domain/flightlog/FlightLog';
 
 interface FlightLogListProps {
   logs: FlightLog[];
@@ -9,19 +9,28 @@ interface FlightLogListProps {
 }
 
 const FlightLogList: React.FC<FlightLogListProps> = ({ logs, onLogPress }) => {
+  const renderItem = ({ item }: { item: FlightLog }) => (
+    <TouchableOpacity style={styles.item} onPress={() => onLogPress(item)}>
+      <Text>日付: {item.date.toString()}</Text>
+      <Text>飛行時間: {item.flightDuration.toString()}</Text>
+      <Text>操縦者名: {item.pilotName}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      {logs.map((log) => (
-        <FlightLogItem key={log.key} log={log} onPress={() => onLogPress(log)} />
-      ))}
-    </View>
+    <FlatList
+      data={logs}
+      renderItem={renderItem}
+      keyExtractor={item => item.key}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
 });
 

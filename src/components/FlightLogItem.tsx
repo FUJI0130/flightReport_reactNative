@@ -1,19 +1,22 @@
+// src/components/FlightLogItem.tsx
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { FlightLog } from '../domain/models/FlightLog';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlightLog } from '../domain/flightlog/FlightLog';
 
-interface FlightLogItemProps {
+type FlightLogItemProps = {
   log: FlightLog;
   onPress: () => void;
-}
-
-const FlightLogItem: React.FC<FlightLogItemProps> = ({ log, onPress }) => {
-  return (
-    <View style={styles.container} onTouchEnd={onPress}>
-      <Text>{log.details}</Text>
-    </View>
-  );
 };
+
+const FlightLogItem: React.FC<FlightLogItemProps> = ({ log, onPress }) => (
+  <TouchableOpacity onPress={onPress}>
+    <View style={styles.container}>
+      <Text>日付: {log.date.value}</Text>
+      <Text>飛行時間: {log.flightDuration}</Text>
+      <Text>操縦者名: {log.pilotName}</Text>
+    </View>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   container: {
