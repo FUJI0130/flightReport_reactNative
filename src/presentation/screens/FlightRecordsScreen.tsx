@@ -1,3 +1,5 @@
+// src/presentation/screens/FlightRecordsScreen.tsx
+
 import React, { useEffect, useState } from 'react';
 import { View, Button, Alert, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
@@ -105,8 +107,8 @@ useEffect(() => {
   const renderItem = ({ item }: { item: FlightLog }) => (
     <TouchableOpacity onPress={() => handleLogPress(item)}>
       <View style={styles.item}>
-        <Text>日付: {item.date}</Text>
-        <Text>飛行時間: {item.flightDuration}</Text>
+        <Text>日付: {item.date.toString()}</Text>
+        <Text>飛行時間: {item.flightDuration.toString()}</Text>
         <Text>操縦者名: {item.pilotName}</Text>
       </View>
     </TouchableOpacity>

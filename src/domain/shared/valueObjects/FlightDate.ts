@@ -1,4 +1,4 @@
-// src/domain/shared/valueObjects/Date.ts
+// src/domain/shared/valueObjects/FlightDate.ts
 import {BaseValueObject} from '../BaseValueObject';
 
 interface FlightDateProps {
@@ -8,10 +8,7 @@ interface FlightDateProps {
 export class FlightDate extends BaseValueObject<FlightDateProps> {
   private constructor(props: FlightDateProps) {
     super(props);
-  }
-
-  get value(): string {
-    return this.props.value;
+    this.validate(props);
   }
 
   protected validate(props: FlightDateProps): void {
@@ -26,5 +23,9 @@ export class FlightDate extends BaseValueObject<FlightDateProps> {
 
   public static create(date: string): FlightDate {
     return new FlightDate({value: date});
+  }
+
+  public toString(): string {
+    return this.props.value;
   }
 }

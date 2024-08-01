@@ -11,8 +11,8 @@ interface FlightLogListProps {
 const FlightLogList: React.FC<FlightLogListProps> = ({ logs, onLogPress }) => {
   const renderItem = ({ item }: { item: FlightLog }) => (
     <TouchableOpacity style={styles.item} onPress={() => onLogPress(item)}>
-      <Text>日付: {item.date.value}</Text>
-      <Text>飛行時間: {item.flightDuration}</Text>
+      <Text>日付: {item.date.toString()}</Text>
+      <Text>飛行時間: {item.flightDuration.toString()}</Text>
       <Text>操縦者名: {item.pilotName}</Text>
     </TouchableOpacity>
   );

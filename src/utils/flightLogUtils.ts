@@ -3,6 +3,7 @@ import RNFS from 'react-native-fs';
 import {FlightLog} from '../domain/flightlog/FlightLog';
 import {FlightDate} from '../domain/shared/valueObjects/FlightDate';
 import {Location} from '../domain/flightlog/valueObjects/Location';
+import {FlightDuration} from '../domain/flightlog/valueObjects/FlightDuration';
 
 export const getFilesWithExtension = async (
   extension: string,
@@ -31,7 +32,7 @@ export const validateCSVFormat = (csvContent: string): boolean => {
   ];
   const rows = csvContent.split('\n').filter(Boolean);
   const headers = rows[0].split(',');
-  console.log('CSV Headers:', headers); // デバッグ情報追加
+  console.log('validateCSVFormat: CSV Headers:', headers); // デバッグ情報追加
   console.log('Expected Headers:', expectedHeaders); // デバッグ情報追加
   return expectedHeaders.every((header, index) => header === headers[index]);
 };
@@ -72,8 +73,8 @@ export const loadCSVFlightLogsFromFile = async (
       flightPurposeAndRoute,
       Location.create(takeoffLocation, takeoffTime),
       Location.create(landingLocation, landingTime),
-      flightDuration,
-      issues,
+      FlightDuration.create(parseInt(flightDuration)),
+      issues || '', // ここでissuesがundefinedの場合に空文字列を設定
     );
   });
   return flightLogs;

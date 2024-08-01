@@ -31,4 +31,8 @@ export class Location extends BaseValueObject<LocationProps> {
   public static create(location: string, time: string): Location {
     return new Location({location, time});
   }
+
+  public toString(): string {
+    return `${this.props.location} ${this.props.time}`;
+  }
 }
