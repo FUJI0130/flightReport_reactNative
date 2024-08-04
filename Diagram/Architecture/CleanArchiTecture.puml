@@ -1,0 +1,66 @@
+@startuml CleanArchitecture
+!define CONTROLLER(x) class x << (C, #AADDEE) >>
+!define USECASE(x) class x << (U, #FFBB55) >>
+!define REPOSITORY(x) class x << (R, #FFAA77) >>
+!define ENTITY(x) class x << (E, #FFAAAA) >>
+!define SERVICE(x) class x << (S, #DDEEFF) >>
+
+' ステレオタイプの色設定
+skinparam class {
+    BackgroundColor<<C>> #AADDEE
+    BackgroundColor<<U>> #FFBB55
+    BackgroundColor<<R>> #FFAA77
+    BackgroundColor<<E>> #FFAAAA
+    BackgroundColor<<S>> #DDEEFF
+}
+
+left to right direction
+skinparam packageStyle rect
+
+package "Clean Architecture" {
+    package "Presentation Layer" #LightGreen {
+        CONTROLLER(AddFlightRecordController)
+        CONTROLLER(ExportFlightLogsController)
+        CONTROLLER(GetFlightLogsController)
+        package "Application Layer" #LightYellow {
+            USECASE(AddFlightRecordUseCase)
+            USECASE(ExportFlightLogsUseCase)
+            USECASE(GetFlightLogsUseCase)
+            package "Infrastructure Layer" #LightSteelBlue {
+                SERVICE(CSVFlightLogRepository)
+                SERVICE(FileSystemFlightLogRepository)
+                SERVICE(JSONFlightLogRepository)
+                SERVICE(StorageService)
+                package "Domain Layer" #LightPink {
+                    ENTITY(FlightLog)
+                    ENTITY(FlightDate)
+                    ENTITY(Location)
+                    ENTITY(FlightDuration)
+                    ENTITY(Pilot)
+                    ENTITY(Aircraft)
+                    REPOSITORY(FlightLogRepository)
+                    REPOSITORY(IDataStore)
+                }
+            }
+        }
+    }
+}
+
+' 関係の設定
+AddFlightRecordController --> AddFlightRecordUseCase : calls
+ExportFlightLogsController --> ExportFlightLogsUseCase : calls
+GetFlightLogsController --> GetFlightLogsUseCase : calls
+
+AddFlightRecordUseCase --> FlightLog : manipulates
+ExportFlightLogsUseCase --> FlightLog : manipulates
+GetFlightLogsUseCase --> FlightLog : manipulates
+
+AddFlightRecordUseCase --> FlightLogRepository : uses
+ExportFlightLogsUseCase --> FlightLogRepository : uses
+GetFlightLogsUseCase --> FlightLogRepository : uses
+
+FlightLogRepository --> CSVFlightLogRepository : implements
+FlightLogRepository --> FileSystemFlightLogRepository : implements
+FlightLogRepository --> JSONFlightLogRepository : implements
+FlightLogRepository --> StorageService : uses
+@enduml

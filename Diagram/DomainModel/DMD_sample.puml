@@ -1,0 +1,63 @@
+@startuml ドメインモデル図
+!define ENTITY(x) class x << (E, #FFAAAA) >>
+!define VALUE(x) class x << (V, #AADDFF) >>
+
+' パッケージの背景色設定
+package "飛行記録集約" #LightPink {
+    ENTITY(FlightLog) {
+      - key: string
+      - date: FlightDate
+      - pilotName: string
+      - registrationNumber: string
+      - aircraftId: string
+      - flightPurposeAndRoute: string
+      - takeoffLocationAndTime: Location
+      - landingLocationAndTime: Location
+      - flightDuration: FlightDuration
+      - issues: string
+      + toCSVRow(): string
+    }
+
+    VALUE(FlightDate) {
+      - value: string
+      + create(date: string): FlightDate
+      + toString(): string
+    }
+
+    VALUE(Location) {
+      - location: string
+      - time: string
+      + create(location: string, time: string): Location
+      + toString(): string
+    }
+
+    VALUE(FlightDuration) {
+      - value: number
+      + create(duration: number): FlightDuration
+      + toString(): string
+    }
+}
+
+package "機体集約" #LightSteelBlue {
+    ENTITY(Aircraft) {
+      - aircraftId: string
+      - model: string
+      - manufacturer: string
+      + getDetails(): string
+    }
+}
+
+package "ユーザー集約" #LightGreen {
+    ENTITY(Pilot) {
+      - ID: string
+      - name: string
+    }
+}
+
+' 関係の設定
+FlightLog --> FlightDate
+FlightLog --> Location
+FlightLog --> FlightDuration
+FlightLog --> Aircraft
+
+@enduml

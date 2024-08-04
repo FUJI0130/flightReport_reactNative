@@ -1,7 +1,9 @@
+// src/domain/repositories/FlightLogRepository.ts
 import {FlightLog} from '../flightlog/FlightLog';
 
 export interface FlightLogRepository {
-  loadFlightLogs(): Promise<FlightLog[]>;
-  saveFlightLog(newLog: FlightLog): Promise<void>;
-  exportFlightLogsToCSV(): Promise<void>;
+  listFiles(): Promise<string[]>; // ファイル一覧を取得するメソッド
+  load(fileName: string): Promise<FlightLog[]>; // ファイル名を引数に取るメソッド
+  save(flightLog: FlightLog, fileName?: string): Promise<void>;
+  export(): Promise<void>;
 }

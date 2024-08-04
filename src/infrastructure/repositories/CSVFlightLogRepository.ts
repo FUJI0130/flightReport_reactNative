@@ -1,7 +1,6 @@
-// src/infrastructure/repositories/CSVFlightLogRepository.ts
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/flightlog/FlightLog';
-import {IDataStore} from '../../domain/repositories/IDataStore';
+import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
 import {
   getFilesWithExtension,
   loadCSVFlightLogsFromFile,
@@ -16,7 +15,7 @@ const ensureDirectoryExists = async () => {
   }
 };
 
-export class CSVFlightLogRepository implements IDataStore<FlightLog> {
+export class CSVFlightLogRepository implements FlightLogRepository {
   async listFiles(): Promise<string[]> {
     await ensureDirectoryExists();
     const files = await getFilesWithExtension('.csv');
@@ -37,7 +36,7 @@ export class CSVFlightLogRepository implements IDataStore<FlightLog> {
     return await loadCSVFlightLogsFromFile(filePath);
   }
 
-  async save(item: FlightLog, fileName?: string): Promise<void> {
+  async save(flightLog: FlightLog, fileName?: string): Promise<void> {
     await ensureDirectoryExists();
     const finalFileName = fileName?.endsWith('.csv')
       ? fileName
@@ -51,7 +50,7 @@ export class CSVFlightLogRepository implements IDataStore<FlightLog> {
       csvData = csvData.trim();
     }
 
-    const newCSVData = this.jsonToCSV([item]);
+    const newCSVData = this.jsonToCSV([flightLog]);
     csvData += csvData ? `\n${newCSVData}` : newCSVData;
 
     await RNFS.writeFile(filePath, csvData, 'utf8');

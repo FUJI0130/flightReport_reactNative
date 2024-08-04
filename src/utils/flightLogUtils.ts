@@ -5,10 +5,19 @@ import {FlightDate} from '../domain/shared/valueObjects/FlightDate';
 import {Location} from '../domain/flightlog/valueObjects/Location';
 import {FlightDuration} from '../domain/flightlog/valueObjects/FlightDuration';
 
+const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
+
+export const ensureDirectoryExists = async () => {
+  const exists = await RNFS.exists(directoryPath);
+  if (!exists) {
+    await RNFS.mkdir(directoryPath);
+  }
+};
+
 export const getFilesWithExtension = async (
   extension: string,
 ): Promise<string[]> => {
-  const directoryPath = `${RNFS.DownloadDirectoryPath}/flightReport`;
+  await ensureDirectoryExists();
   const files = await RNFS.readDir(directoryPath);
   return files
     .filter(file => file.name.endsWith(extension))
@@ -78,4 +87,28 @@ export const loadCSVFlightLogsFromFile = async (
     );
   });
   return flightLogs;
+};
+
+// JSON用の関数も追加する
+export const loadJSONFlightLogsFromFile = async (
+  filePath: string,
+): Promise<FlightLog[]> => {
+  const json = await RNFS.readFile(filePath);
+  if (!json || json.trim() === '') {
+    return [];
+  }
+  return JSON.parse(json).map(
+    (item: any) =>
+      new FlightLog(
+        item.key,
+        FlightDate.create(item.date),
+        item.pilotName,
+        item.registrationNumber,
+        item.flightPurposeAndRoute,
+        Location.create(item.takeoffLocation, item.takeoffTime),
+        Location.create(item.landingLocation, item.landingTime),
+        FlightDuration.create(item.flightDuration),
+        item.issues || '',
+      ),
+  );
 };

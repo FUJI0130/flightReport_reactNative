@@ -11,8 +11,8 @@ type FlightLogItemProps = {
 const FlightLogItem: React.FC<FlightLogItemProps> = ({ log, onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <View style={styles.container}>
-      <Text>日付: {log.date.value}</Text>
-      <Text>飛行時間: {log.flightDuration}</Text>
+      <Text>日付: {log.date.toString()}</Text>
+      <Text>飛行時間: {log.flightDuration.toString()}</Text>
       <Text>操縦者名: {log.pilotName}</Text>
     </View>
   </TouchableOpacity>
