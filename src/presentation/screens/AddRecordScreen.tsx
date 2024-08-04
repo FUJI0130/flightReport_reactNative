@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
+import { AddFlightRecordUseCase } from '../../application/usecases/AddFlightRecordUseCase';
 import Header from '../../components/Header';
 
 const AddRecordScreen: React.FC = () => {
@@ -10,8 +10,8 @@ const AddRecordScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handleSave = async () => {
-    const repository = await createFlightLogRepository();
-    await repository.save({ key: new Date().toISOString(), details });
+    const useCase = new AddFlightRecordUseCase();
+    await useCase.execute({ details });
     console.log('Saved Record:', details);
     navigation.goBack();
   };
