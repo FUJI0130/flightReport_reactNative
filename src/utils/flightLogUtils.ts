@@ -41,8 +41,8 @@ export const validateCSVFormat = (csvContent: string): boolean => {
   ];
   const rows = csvContent.split('\n').filter(Boolean);
   const headers = rows[0].split(',');
-  console.log('validateCSVFormat: CSV Headers:', headers); // デバッグ情報追加
-  console.log('Expected Headers:', expectedHeaders); // デバッグ情報追加
+  console.log('validateCSVFormat: CSV Headers:', headers);
+  console.log('Expected Headers:', expectedHeaders);
   return expectedHeaders.every((header, index) => header === headers[index]);
 };
 
@@ -83,13 +83,12 @@ export const loadCSVFlightLogsFromFile = async (
       Location.create(takeoffLocation, takeoffTime),
       Location.create(landingLocation, landingTime),
       FlightDuration.create(parseInt(flightDuration)),
-      issues || '', // ここでissuesがundefinedの場合に空文字列を設定
+      issues || '',
     );
   });
   return flightLogs;
 };
 
-// JSON用の関数も追加する
 export const loadJSONFlightLogsFromFile = async (
   filePath: string,
 ): Promise<FlightLog[]> => {
@@ -111,4 +110,26 @@ export const loadJSONFlightLogsFromFile = async (
         item.issues || '',
       ),
   );
+};
+
+// 新規追加: パイロット情報をロードする関数
+export const loadPilots = async (): Promise<string[]> => {
+  const filePath = `${directoryPath}/pilots.csv`;
+  const csv = await RNFS.readFile(filePath);
+  if (!csv || csv.trim() === '') {
+    return [];
+  }
+  const rows = csv.split('\n').filter(Boolean);
+  return rows.slice(1).map(row => row.split(',')[0]); // CSVの最初の列をパイロット名として取得
+};
+
+// 新規追加: ロケーション情報をロードする関数
+export const loadLocations = async (): Promise<string[]> => {
+  const filePath = `${directoryPath}/locations.csv`;
+  const csv = await RNFS.readFile(filePath);
+  if (!csv || csv.trim() === '') {
+    return [];
+  }
+  const rows = csv.split('\n').filter(Boolean);
+  return rows.slice(1).map(row => row.split(',')[0]); // CSVの最初の列をロケーション名として取得
 };
