@@ -1,3 +1,4 @@
+// src/infrastructure/repositories/FileSystemFlightLogRepository.ts
 import RNFS from 'react-native-fs';
 import {FlightLog} from '../../domain/flightlog/FlightLog';
 import {FlightLogRepository} from '../../domain/repositories/FlightLogRepository';
@@ -33,51 +34,64 @@ const ensureDirectoryExists = async () => {
 };
 
 export class FileSystemFlightLogRepository implements FlightLogRepository {
-  async loadFlightLogs(): Promise<FlightLog[]> {
+  async listFiles(): Promise<string[]> {
     await ensureDirectoryExists();
     const settings = await loadSettings();
     const priority = settings.priority || 'csv'; // デフォルトはCSV優先
 
     if (priority === 'csv') {
-      const csvFiles = await getFilesWithExtension('.csv');
-      if (csvFiles.length === 1) {
-        return await loadCSVFlightLogsFromFile(csvFiles[0]);
-      } else if (csvFiles.length > 1) {
-        // 複数のCSVファイルが存在する場合に選択を要求
-        throw new Error(
-          `複数のCSVファイルが見つかりました: ${csvFiles.join(', ')}`,
-        );
-      }
+      return await getFilesWithExtension('.csv');
     } else if (priority === 'json') {
-      const jsonFiles = await getFilesWithExtension('.json');
-      if (jsonFiles.length === 1) {
-        return await loadJSONFlightLogsFromFile(jsonFiles[0]);
-      } else if (jsonFiles.length > 1) {
-        // 複数のJSONファイルが存在する場合に選択を要求
-        throw new Error(
-          `複数のJSONファイルが見つかりました: ${jsonFiles.join(', ')}`,
-        );
-      }
+      return await getFilesWithExtension('.json');
     } else {
       throw new Error(
         `設定ファイルのpriorityに対応外のファイル形式が指定されています: ${priority}. 'csv' または 'json' のいずれかを指定してください。`,
       );
     }
-
-    // CSVもJSONも存在しない場合は空の配列を返す
-    return [];
   }
 
-  async saveFlightLog(newLog: FlightLog): Promise<void> {
+  async load(fileName: string): Promise<FlightLog[]> {
     await ensureDirectoryExists();
-    const contents = await RNFS.readFile(logsPath);
-    const flightLogs = JSON.parse(contents);
-    flightLogs.push(newLog);
-    await RNFS.writeFile(logsPath, JSON.stringify(flightLogs));
+    const filePath = fileName.includes(RNFS.DownloadDirectoryPath)
+      ? fileName
+      : `${directoryPath}/${fileName}`;
+    console.log(`Loading file: ${filePath}`);
+    const exists = await RNFS.exists(filePath);
+    if (!exists) {
+      throw new Error(`File does not exist: ${filePath}`);
+    }
+
+    if (fileName.endsWith('.csv')) {
+      return await loadCSVFlightLogsFromFile(filePath);
+    } else if (fileName.endsWith('.json')) {
+      return await loadJSONFlightLogsFromFile(filePath);
+    } else {
+      throw new Error('Unsupported file format');
+    }
   }
 
-  async exportFlightLogsToCSV(): Promise<void> {
-    const flightLogs = await this.loadFlightLogs();
+  async save(flightLog: FlightLog, fileName?: string): Promise<void> {
+    await ensureDirectoryExists();
+    const finalFileName = fileName?.endsWith('.csv')
+      ? fileName
+      : `${fileName}.csv`;
+    const filePath = `${directoryPath}/${finalFileName}`;
+    let csvData = '';
+
+    const exists = await RNFS.exists(filePath);
+    if (exists) {
+      csvData = await RNFS.readFile(filePath);
+      csvData = csvData.trim();
+    }
+
+    const newCSVData = this.jsonToCSV([flightLog]);
+    csvData += csvData ? `\n${newCSVData}` : newCSVData;
+
+    await RNFS.writeFile(filePath, csvData, 'utf8');
+  }
+
+  async export(): Promise<void> {
+    const flightLogs = await this.load('');
     if (flightLogs.length === 0) {
       throw new Error('No flight logs available to export');
     }

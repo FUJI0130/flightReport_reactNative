@@ -106,10 +106,6 @@ function FlightRecordsScreen() {
           title="Add New Record"
           onPress={() => navigation.navigate('AddRecord')}
         />
-        <Button
-          title="Export Flight Logs"
-          onPress={() => navigation.navigate('Export')}
-        />
       </View>
       <FileSelectionDialog
         visible={fileSelectionVisible}
