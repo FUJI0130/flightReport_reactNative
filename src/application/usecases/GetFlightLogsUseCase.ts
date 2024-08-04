@@ -7,4 +7,9 @@ export class GetFlightLogsUseCase {
     const flightLogRepository = await createFlightLogRepository();
     return await flightLogRepository.load(fileName);
   }
+
+  async listFiles(): Promise<string[]> {
+    const flightLogRepository = await createFlightLogRepository();
+    return await flightLogRepository.listFiles();
+  }
 }

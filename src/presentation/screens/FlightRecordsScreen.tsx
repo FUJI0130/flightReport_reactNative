@@ -4,8 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Button, Alert, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { FlightLog } from '../../domain/flightlog/FlightLog';
-import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
-import { IDataStore } from '../../domain/repositories/IDataStore';
+import { GetFlightLogsUseCase } from '../../application/usecases/GetFlightLogsUseCase';
 import Header from '../../components/Header';
 import RNFS from 'react-native-fs';
 import { validateCSVFormat } from '../../utils/flightLogUtils';
@@ -19,76 +18,60 @@ const extractFileName = (filePath: string): string => {
 function FlightRecordsScreen() {
   const [records, setRecords] = useState<FlightLog[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [repository, setRepository] = useState<IDataStore<FlightLog> | null>(null);
   const [fileSelectionVisible, setFileSelectionVisible] = useState(false);
   const [validFiles, setValidFiles] = useState<string[]>([]);
   const route = useRoute<RouteProp<RootStackParamList, 'FlightRecords'>>();
+  const getFlightLogsUseCase = new GetFlightLogsUseCase();
 
-const loadLogs = async (fileName: string) => {
-    if (repository) {
-      try {
-        const filePath = fileName.includes(RNFS.DownloadDirectoryPath) ? fileName : `${RNFS.DownloadDirectoryPath}/flightReport/${fileName}`;
-        console.log(`Loading logs from: ${filePath}`);
-        const data = await repository.load(filePath);
-        setRecords(data);
-      } catch (error) {
-        Alert.alert(
-          'エラー',
-          'CSVファイルの形式が正しくありません',
-          [
-            {
-              text: 'OK',
-              onPress: () => showFileSelectionPopup()
-            }
-          ]
-        );
-        console.error(`Load logs error: ${error} FileName: ${fileName}`);
-      }
+  const loadLogs = async (fileName: string) => {
+    try {
+      const filePath = fileName.includes(RNFS.DownloadDirectoryPath) ? fileName : `${RNFS.DownloadDirectoryPath}/flightReport/${fileName}`;
+      console.log(`Loading logs from: ${filePath}`);
+      const data = await getFlightLogsUseCase.execute(filePath);
+      setRecords(data);
+    } catch (error) {
+      Alert.alert(
+        'エラー',
+        'CSVファイルの形式が正しくありません',
+        [
+          {
+            text: 'OK',
+            onPress: () => showFileSelectionPopup()
+          }
+        ]
+      );
+      console.error(`Load logs error: ${error} FileName: ${fileName}`);
     }
   };
 
-
-
   const showFileSelectionPopup = async () => {
-    if (repository) {
-      try {
-        const files = await repository.listFiles();
-        const validFiles = [];
+    try {
+      const files = await getFlightLogsUseCase.listFiles();
+      const validFiles = [];
 
-        for (const file of files) {
-          const csvContent = await RNFS.readFile(file);
-          console.log('Checking file:', file);
-          if (validateCSVFormat(csvContent)) {
-            validFiles.push(file);
-          }
+      for (const file of files) {
+        const csvContent = await RNFS.readFile(file);
+        console.log('Checking file:', file);
+        if (validateCSVFormat(csvContent)) {
+          validFiles.push(file);
         }
-
-        setValidFiles(validFiles);
-        setFileSelectionVisible(true);
-      } catch (error) {
-        console.error(error);
       }
+
+      setValidFiles(validFiles);
+      setFileSelectionVisible(true);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   useEffect(() => {
-    const initRepository = async () => {
-      const repo = await createFlightLogRepository();
-      setRepository(repo);
-    };
-
-    initRepository();
-  }, []);
-
-useEffect(() => {
-  if (route.params?.newFileName) {
-    const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${route.params.newFileName}`;
-    loadLogs(filePath);
-  } else {
-    showFileSelectionPopup();
-  }
-}, [repository, route.params?.newFileName]);
-
+    if (route.params?.newFileName) {
+      const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${route.params.newFileName}`;
+      loadLogs(filePath);
+    } else {
+      showFileSelectionPopup();
+    }
+  }, [route.params?.newFileName]);
 
   const handleFileSelect = (fileName: string) => {
     setFileSelectionVisible(false);
