@@ -22,6 +22,6 @@ export class FlightDuration extends BaseValueObject<FlightDurationProps> {
   }
 
   public toString(): string {
-    return `${this.props.value} minutes`;
+    return `${this.props.value}`;
   }
 }
