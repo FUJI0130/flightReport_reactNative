@@ -1,0 +1,37 @@
+@startuml AddFlightRecordUseCase
+!define CONTROLLER(x) class x << (C, #AADDEE) >>
+!define USECASE(x) class x << (U, #FFBB55) >>
+!define REPOSITORY(x) class x << (R, #FFAA77) >>
+!define ENTITY(x) class x << (E, #FFAAAA) >>
+!define VALUE(x) class x << (V, #AADDFF) >>
+
+' ステレオタイプの色設定
+skinparam class {
+    BackgroundColor<<C>> #AADDEE
+    BackgroundColor<<U>> #FFBB55
+    BackgroundColor<<R>> #FFAA77
+    BackgroundColor<<E>> #FFAAAA
+    BackgroundColor<<V>> #AADDFF
+}
+
+left to right direction
+skinparam packageStyle rect
+
+package "Application Service Diagram" {
+    CONTROLLER(AddFlightRecordController)
+    USECASE(AddFlightRecordUseCase)
+    REPOSITORY(FlightLogRepository)
+    ENTITY(FlightLog)
+    VALUE(FlightDate)
+    VALUE(Location)
+    VALUE(FlightDuration)
+
+    AddFlightRecordController --> AddFlightRecordUseCase : calls
+    AddFlightRecordUseCase --> FlightLogRepository : uses
+    AddFlightRecordUseCase --> FlightLog : creates
+    FlightLog --> FlightDate : contains
+    FlightLog --> Location : contains
+    FlightLog --> FlightDuration : contains
+}
+
+@enduml
