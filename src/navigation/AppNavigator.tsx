@@ -6,15 +6,10 @@ import AddRecordScreen from '../presentation/screens/AddRecordScreen';
 import DetailScreen from '../presentation/screens/DetailScreen';
 import FlightRecordsScreen from '../presentation/screens/FlightRecordsScreen';
 import NewFlightLogScreen from '../presentation/screens/NewFlightLogScreen'; // 新規作成画面を追加
+import FlightTimerScreen from '../presentation/screens/FlightTimerScreen';
 
-export type RootStackParamList = {
-  Home: undefined;
-  AddRecord: undefined;
-  Detail: { record: any };
-  Export: undefined;
-  FlightRecords: undefined;
-  NewFlightLog: undefined; // ルートを追加
-};
+import { RootStackParamList } from './ParamList';
+
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -27,6 +22,7 @@ const AppNavigator = () => {
         <Stack.Screen name="AddRecord" component={AddRecordScreen} />
         <Stack.Screen name="Detail" component={DetailScreen} />
         <Stack.Screen name="NewFlightLog" component={NewFlightLogScreen} />
+        <Stack.Screen name="FlightTimer" component={FlightTimerScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
