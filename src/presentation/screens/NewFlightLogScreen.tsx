@@ -1,75 +1,73 @@
+// src/presentation/screens/NewFlightLogScreen.tsx
+
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView } from 'react-native';
 import Header from '../../components/Header';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { createFlightLogRepository } from '../../infrastructure/repositories/FlightLogRepositoryFactory';
-import { FlightLog } from '../../domain/flightlog/FlightLog';
-import { FlightDate } from '../../domain/shared/valueObjects/FlightDate';
-import { Location } from '../../domain/flightlog/valueObjects/Location';
-import { FlightDuration } from '../../domain/flightlog/valueObjects/FlightDuration';
-import RNFS from 'react-native-fs';
 import { RootStackParamList } from '../../navigation/ParamList';
 
 const NewFlightLogScreen: React.FC = () => {
   const [details, setDetails] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [pilotName, setPilotName] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [flightPurposeAndRoute, setFlightPurposeAndRoute] = useState('');
+  const [takeoffLocation, setTakeoffLocation] = useState('');
+  const [landingLocation, setLandingLocation] = useState('');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const handleSave = async () => {
-    const repository = await createFlightLogRepository();
-    const newLog = new FlightLog(
-      new Date().toISOString(),
-      FlightDate.create(new Date().toISOString()),
-      'Test Pilot',
-      'ABC123',
-      details,
-      Location.create('Location A', '12:00'),
-      Location.create('Location B', '13:00'),
-      FlightDuration.create(60), // example duration in minutes
-      'None'
-    );
-
-    const finalFileName = fileName.endsWith('.csv') ? fileName : `${fileName}.csv`;
-    const filePath = `${RNFS.DownloadDirectoryPath}/flightReport/${finalFileName}`;
-    console.log(`Creating new file: ${filePath}`);
-
-    const csvHeader = 'key,date,pilotName,registrationNumber,flightPurposeAndRoute,takeoffLocationAndTime,landingLocationAndTime,flightDuration,issues\n';
-    const csvRow = newLog.toCSVRow();
-    const csvContent = csvHeader + csvRow;
-
-    try {
-      await RNFS.writeFile(filePath, csvContent, 'utf8');
-      navigation.reset({
-        index: 1,
-        routes: [
-          { name: 'Home' },
-          { name: 'FlightRecords', params: { newFileName: finalFileName } },
-        ],
-      });
-    } catch (error) {
-      Alert.alert('エラー', 'ファイルの保存に失敗しました');
-      console.error('File save error:', error);
+  const handleNext = () => {
+    if (!pilotName || !registrationNumber || !flightPurposeAndRoute || !takeoffLocation || !landingLocation) {
+      Alert.alert('エラー', 'すべてのフィールドを入力してください');
+      return;
     }
+
+    const flightDetails = {
+      pilotName,
+      registrationNumber,
+      flightPurposeAndRoute,
+      takeoffLocation,
+      landingLocation,
+    };
+
+    navigation.navigate('FlightTimer', { flightDetails });
   };
 
   return (
     <View style={styles.container}>
       <Header title="New Flight Log" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <TextInput
           style={styles.input}
-          placeholder="File Name"
-          value={fileName}
-          onChangeText={setFileName}
+          placeholder="Pilot Name"
+          value={pilotName}
+          onChangeText={setPilotName}
         />
         <TextInput
           style={styles.input}
-          placeholder="Flight Details"
-          value={details}
-          onChangeText={setDetails}
+          placeholder="Registration Number"
+          value={registrationNumber}
+          onChangeText={setRegistrationNumber}
         />
-        <Button title="Save Record" onPress={handleSave} />
-      </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Flight Purpose and Route"
+          value={flightPurposeAndRoute}
+          onChangeText={setFlightPurposeAndRoute}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Takeoff Location"
+          value={takeoffLocation}
+          onChangeText={setTakeoffLocation}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Landing Location"
+          value={landingLocation}
+          onChangeText={setLandingLocation}
+        />
+        <Button title="Next" onPress={handleNext} />
+      </ScrollView>
     </View>
   );
 };
@@ -79,7 +77,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,

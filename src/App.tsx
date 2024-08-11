@@ -3,10 +3,14 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
-import { loadSettings } from './infrastructure/repositories/FileSystemFlightLogRepository';
+import { loadSettings } from './infrastructure/repositories/SettingsManager';
+
+type Settings = {
+  priority: string;
+} | null;
 
 const App: React.FC = () => {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState<Settings>(null);
 
   useEffect(() => {
     const requestStoragePermission = async () => {
@@ -47,3 +51,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

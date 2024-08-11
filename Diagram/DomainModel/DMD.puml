@@ -1,0 +1,74 @@
+@startuml ドメインモデル図
+!define ENTITY(x) class x << (E,#FFAAAA) >>
+!define VALUE(x) class x << (V,#AADDFF) >>
+!define REPOSITORY(x) class x << (R,#FFAA77) >>
+!define USECASE(x) class x << (U,#FFBB55) >>
+
+ENTITY(FlightLog) {
+  - key: string
+  - date: FlightDate
+  - pilotName: string
+  - registrationNumber: string
+  - flightPurposeAndRoute: string
+  - takeoffLocationAndTime: Location
+  - landingLocationAndTime: Location
+  - flightDuration: FlightDuration
+  - issues: string
+  + toCSVRow(): string
+}
+
+VALUE(FlightDate) {
+  - value: string
+  + create(date: string): FlightDate
+  + toString(): string
+}
+
+VALUE(Location) {
+  - location: string
+  - time: string
+  + create(location: string, time: string): Location
+  + toString(): string
+}
+
+VALUE(FlightDuration) {
+  - value: number
+  + create(duration: number): FlightDuration
+  + toString(): string
+}
+
+REPOSITORY(FlightLogRepository) {
+  + loadFlightLogs(): Promise<FlightLog[]>
+  + saveFlightLog(newLog: FlightLog): Promise<void>
+  + exportFlightLogsToCSV(): Promise<void>
+}
+
+REPOSITORY(IDataStore) {
+  + listFiles(): Promise<string[]>
+  + load(fileName: string): Promise<T[]>
+  + save(item: T, fileName?: string): Promise<void>
+  + export(): Promise<void>
+}
+
+USECASE(AddFlightRecordUseCase) {
+  + execute(details: any): Promise<void>
+}
+
+USECASE(ExportFlightLogsUseCase) {
+  + execute(): Promise<void>
+}
+
+USECASE(GetFlightLogsUseCase) {
+  + execute(fileName: string): Promise<FlightLog[]>
+}
+
+FlightLogRepository --> FlightLog
+FlightLog --> FlightDate
+FlightLog --> Location
+FlightLog --> FlightDuration
+FlightLogRepository --> IDataStore
+
+AddFlightRecordUseCase --> FlightLogRepository
+ExportFlightLogsUseCase --> FlightLogRepository
+GetFlightLogsUseCase --> FlightLogRepository
+
+@enduml
